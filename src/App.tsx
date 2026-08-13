@@ -1,12 +1,14 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/components/layout'
 import Dashboard from '@/pages/dashboard'
 import PropertyDetail from '@/pages/property-detail'
 import PropertyForm from '@/pages/property-form'
 
+// HashRouter keeps navigation working on any static host (including a
+// single-file deploy) without needing server-side rewrite rules.
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
@@ -15,6 +17,6 @@ export default function App() {
           <Route path="imoveis/:id/editar" element={<PropertyForm />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
