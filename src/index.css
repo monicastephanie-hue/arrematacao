@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+}
+
+::selection {
+  @apply bg-amber-200 text-slate-900;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-slate-300 dark:bg-slate-700;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  @apply cursor-pointer opacity-60 dark:invert;
+}

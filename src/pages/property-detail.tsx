@@ -1,0 +1,167 @@
+import { useState } from 'react'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Banknote, ExternalLink, Landmark, MapPin, Pencil, Trash2, Users } from 'lucide-react'
+import { useStore } from '@/store/useStore'
+import type { PropertyStatus } from '@/types'
+import { STATUS_META, STATUS_ORDER } from '@/types'
+import { StatCard } from '@/components/stat-card'
+import { StatusBadge } from '@/components/status-badge'
+import { ProgressBar } from '@/components/progress-bar'
+import { StagesEditor } from '@/components/stages-editor'
+import { ValuesEditor } from '@/components/values-editor'
+import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/field'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { cumulativeInvestmentSeries, potentialResult, stageProgress, totalInvested, valuePerCoOwner } from '@/lib/calculations'
+import { formatCurrency, formatDate } from '@/lib/format'
+
+export default function PropertyDetail() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const property = useStore((s) => s.properties.find((p) => p.id === id))
+  const updateProperty = useStore((s) => s.updateProperty)
+  const deleteProperty = useStore((s) => s.deleteProperty)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  if (!property) return <Navigate to="/" replace />
+
+  const invested = totalInvested(property)
+  const potential = potentialResult(property)
+  const perCoOwner = valuePerCoOwner(property)
+  const progress = stageProgress(property)
+  const series = cumulativeInvestmentSeries(property)
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Link to="/" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+        <ArrowLeft className="h-4 w-4" />
+        Voltar ao dashboard
+      </Link>
+
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{property.title}</h1>
+            <StatusBadge status={property.status} />
+          </div>
+          {property.address && (
+            <p className="mt-1 flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
+              <MapPin className="h-3.5 w-3.5" />
+              {property.address}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Select
+            value={property.status}
+            onChange={(e) => updateProperty(property.id, { status: e.target.value as PropertyStatus })}
+            className="w-auto"
+          >
+            {STATUS_ORDER.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_META[s].label}
+              </option>
+            ))}
+          </Select>
+          <Link to={`/imoveis/${property.id}/editar`}>
+            <Button variant="secondary" size="sm">
+              <Pencil className="h-3.5 w-3.5" />
+              Editar
+            </Button>
+          </Link>
+          <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)} className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      <Card className="grid grid-cols-1 gap-x-6 gap-y-3 p-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        <InfoItem icon={<Landmark className="h-3.5 w-3.5" />} label="Leiloeiro / instituição" value={property.auctionHouse || '—'} />
+        <InfoItem label="Código" value={property.bankCode || '—'} />
+        <InfoItem label="Nº do processo/edital" value={property.processNumber || '—'} />
+        <InfoItem label="Data do leilão/arremate" value={formatDate(property.auctionDate)} />
+        <InfoItem label="Valor de avaliação" value={formatCurrency(property.evaluationValue)} />
+        <InfoItem icon={<Users className="h-3.5 w-3.5" />} label="Cotistas" value={property.coOwners ? String(property.coOwners) : '—'} />
+        {property.financed && (
+          <InfoItem label="Financiamento" value="Imóvel financiado" />
+        )}
+        {property.auctionUrl && (
+          <a
+            href={property.auctionUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-sky-600 hover:underline dark:text-sky-400"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Ver edital/anúncio
+          </a>
+        )}
+      </Card>
+
+      {property.notes && (
+        <Card className="p-4 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mb-1 text-xs font-medium text-slate-400">Observações</p>
+          {property.notes}
+        </Card>
+      )}
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Total investido" value={formatCurrency(invested)} icon={<Banknote className="h-4 w-4" />} />
+        <StatCard label="Valor de mercado estimado" value={formatCurrency(property.marketValue)} />
+        <StatCard
+          label="Resultado potencial"
+          value={potential === null ? '—' : formatCurrency(potential)}
+          tone={potential === null ? 'default' : potential >= 0 ? 'positive' : 'negative'}
+          hint="Valor de mercado − investido"
+        />
+        <StatCard label="Valor por cotista" value={perCoOwner === null ? '—' : formatCurrency(perCoOwner)} />
+      </div>
+
+      <Card className="p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Andamento das etapas</h2>
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{progress}% concluído</span>
+        </div>
+        <ProgressBar value={progress} className="mb-5" />
+        <StagesEditor propertyId={property.id} stages={property.stages} />
+      </Card>
+
+      {series.length >= 2 && (
+        <Card className="p-4">
+          <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Valor acumulado investido</h2>
+          <CumulativeInvestmentChart data={series} />
+        </Card>
+      )}
+
+      <div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Valores lançados</h2>
+        <ValuesEditor propertyId={property.id} values={property.values} />
+      </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Excluir imóvel"
+        description={`Tem certeza que deseja excluir "${property.title}"? Todos os valores e etapas registrados serão perdidos.`}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          deleteProperty(property.id)
+          navigate('/')
+        }}
+      />
+    </div>
+  )
+}
+
+function InfoItem({ icon, label, value }: { icon?: React.ReactNode; label: string; value: string }) {
+  return (
+    <div>
+      <p className="flex items-center gap-1 text-xs text-slate-400">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{value}</p>
+    </div>
+  )
+}
