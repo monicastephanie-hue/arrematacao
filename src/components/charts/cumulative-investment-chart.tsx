@@ -7,8 +7,8 @@ interface Point {
   total: number
 }
 
-const LIGHT = { line: '#d97706', fill: 'rgba(217,119,6,0.12)', grid: '#e1e0d9', axis: '#898781', tooltipBg: '#fcfcfb', tooltipText: '#0b0b0b', tooltipBorder: 'rgba(11,11,11,0.10)' }
-const DARK = { line: '#f0b429', fill: 'rgba(240,180,41,0.14)', grid: '#2c2c2a', axis: '#898781', tooltipBg: '#1a1a19', tooltipText: '#ffffff', tooltipBorder: 'rgba(255,255,255,0.10)' }
+const LIGHT = { line: '#ea580c', fill: 'rgba(234,88,12,0.12)', grid: '#e1e0d9', axis: '#898781', tooltipBg: '#fcfcfb', tooltipText: '#0b0b0b', tooltipBorder: 'rgba(11,11,11,0.10)' }
+const DARK = { line: '#fb923c', fill: 'rgba(251,146,60,0.14)', grid: '#2c2c2a', axis: '#898781', tooltipBg: '#1a1a19', tooltipText: '#ffffff', tooltipBorder: 'rgba(255,255,255,0.10)' }
 
 function CustomTooltip({ active, payload, colors }: { active?: boolean; payload?: { payload: Point }[]; colors: typeof LIGHT }) {
   if (!active || !payload || payload.length === 0) return null

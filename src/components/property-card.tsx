@@ -41,10 +41,10 @@ export function PropertyCard({ property }: { property: Property }) {
               <Banknote className="h-3 w-3" />
               {formatCurrency(invested)} investidos
             </span>
-            {property.coOwners ? (
+            {property.cotistaIds.length > 0 ? (
               <span className="flex items-center gap-1">
                 <Users className="h-3 w-3" />
-                {property.coOwners} cotistas
+                {property.cotistaIds.length} cotistas
               </span>
             ) : null}
           </div>

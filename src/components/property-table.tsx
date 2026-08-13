@@ -72,7 +72,7 @@ export function PropertyTable({ properties }: { properties: Property[] }) {
                 )}
               </td>
               <td className="px-3 py-2 text-right tabular-nums text-slate-500 dark:text-slate-400">
-                {property.coOwners ?? '—'}
+                {property.cotistaIds.length || '—'}
               </td>
               <td className="px-3 py-2 text-right font-medium tabular-nums text-slate-700 dark:text-slate-300">
                 {formatCurrency(totalInvested(property))}

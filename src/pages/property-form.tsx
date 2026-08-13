@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FieldGroup, Input, Label, Select, Textarea } from '@/components/ui/field'
 import { PhotoUpload } from '@/components/photo-upload'
+import { CotistaPicker } from '@/components/cotista-picker'
 
 const emptyForm: NewPropertyInput = {
   title: '',
@@ -22,7 +23,7 @@ const emptyForm: NewPropertyInput = {
   evaluationValue: null,
   marketValue: null,
   financed: false,
-  coOwners: null,
+  cotistaIds: [],
   photoUrl: null,
   status: 'em_andamento',
   notes: '',
@@ -51,7 +52,7 @@ export default function PropertyForm() {
           evaluationValue: existing.evaluationValue,
           marketValue: existing.marketValue,
           financed: existing.financed,
-          coOwners: existing.coOwners,
+          cotistaIds: existing.cotistaIds,
           photoUrl: existing.photoUrl,
           status: existing.status,
           notes: existing.notes,
@@ -79,7 +80,7 @@ export default function PropertyForm() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
       <Link
-        to={isEditing && existing ? `/imoveis/${existing.id}` : '/'}
+        to={isEditing && existing ? `/imoveis/${existing.id}` : '/imoveis'}
         className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -189,38 +190,25 @@ export default function PropertyForm() {
             </FieldGroup>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FieldGroup>
-              <Label htmlFor="coOwners" hint="opcional">
-                Nº de cotistas
-              </Label>
-              <Input
-                id="coOwners"
-                type="number"
-                min={1}
-                step="1"
-                value={form.coOwners ?? ''}
-                onChange={(e) => set('coOwners', e.target.value === '' ? null : Number(e.target.value))}
-              />
-            </FieldGroup>
-            <FieldGroup>
-              <Label htmlFor="status">Situação</Label>
-              <Select id="status" value={form.status} onChange={(e) => set('status', e.target.value as PropertyStatus)}>
-                {STATUS_ORDER.map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_META[s].label}
-                  </option>
-                ))}
-              </Select>
-            </FieldGroup>
-          </div>
+          <FieldGroup>
+            <Label htmlFor="status">Situação</Label>
+            <Select id="status" value={form.status} onChange={(e) => set('status', e.target.value as PropertyStatus)}>
+              {STATUS_ORDER.map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_META[s].label}
+                </option>
+              ))}
+            </Select>
+          </FieldGroup>
+
+          <CotistaPicker value={form.cotistaIds} onChange={(cotistaIds) => set('cotistaIds', cotistaIds)} />
 
           <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
             <input
               type="checkbox"
               checked={form.financed}
               onChange={(e) => set('financed', e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-amber-400 dark:focus:ring-amber-400"
+              className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-orange-400 dark:focus:ring-orange-400"
             />
             Imóvel financiado
           </label>
@@ -241,7 +229,7 @@ export default function PropertyForm() {
         )}
 
         <div className="flex justify-end gap-2">
-          <Link to={isEditing && existing ? `/imoveis/${existing.id}` : '/'}>
+          <Link to={isEditing && existing ? `/imoveis/${existing.id}` : '/imoveis'}>
             <Button type="button" variant="secondary">
               Cancelar
             </Button>

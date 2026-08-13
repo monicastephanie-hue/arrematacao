@@ -8,7 +8,7 @@ interface DatumPoint {
 }
 
 const LIGHT = {
-  bar: '#d97706',
+  bar: '#ea580c',
   grid: '#e1e0d9',
   axis: '#898781',
   tooltipBg: '#fcfcfb',
@@ -16,7 +16,7 @@ const LIGHT = {
   tooltipBorder: 'rgba(11,11,11,0.10)',
 }
 const DARK = {
-  bar: '#f0b429',
+  bar: '#fb923c',
   grid: '#2c2c2a',
   axis: '#898781',
   tooltipBg: '#1a1a19',

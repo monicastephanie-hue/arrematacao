@@ -10,7 +10,7 @@ body {
 }
 
 ::selection {
-  @apply bg-amber-200 text-slate-900;
+  @apply bg-orange-200 text-slate-900;
 }
 
 .scrollbar-thin::-webkit-scrollbar {

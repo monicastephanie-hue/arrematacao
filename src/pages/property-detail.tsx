@@ -21,11 +21,14 @@ export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const property = useStore((s) => s.properties.find((p) => p.id === id))
+  const cotistas = useStore((s) => s.cotistas)
   const updateProperty = useStore((s) => s.updateProperty)
   const deleteProperty = useStore((s) => s.deleteProperty)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  if (!property) return <Navigate to="/" replace />
+  if (!property) return <Navigate to="/imoveis" replace />
+
+  const propertyCotistas = cotistas.filter((c) => property.cotistaIds.includes(c.id))
 
   const invested = totalInvested(property)
   const potential = potentialResult(property)
@@ -35,9 +38,9 @@ export default function PropertyDetail() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link to="/" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+      <Link to="/imoveis" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
         <ArrowLeft className="h-4 w-4" />
-        Voltar ao dashboard
+        Voltar aos imóveis
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -91,7 +94,27 @@ export default function PropertyDetail() {
           <InfoItem label="Nº do processo/edital" value={property.processNumber || '—'} />
           <InfoItem label="Data do leilão/arremate" value={formatDate(property.auctionDate)} />
           <InfoItem label="Valor de avaliação" value={formatCurrency(property.evaluationValue)} />
-          <InfoItem icon={<Users className="h-3.5 w-3.5" />} label="Cotistas" value={property.coOwners ? String(property.coOwners) : '—'} />
+          <div>
+            <p className="flex items-center gap-1 text-xs text-slate-400">
+              <Users className="h-3.5 w-3.5" />
+              Cotistas
+            </p>
+            {propertyCotistas.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {propertyCotistas.map((c) => (
+                  <Link
+                    key={c.id}
+                    to="/cotistas"
+                    className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-0.5 font-medium text-slate-700 dark:text-slate-300">—</p>
+            )}
+          </div>
           {property.financed && (
             <InfoItem label="Financiamento" value="Imóvel financiado" />
           )}

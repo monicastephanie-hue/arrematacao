@@ -44,8 +44,18 @@ export function isActive(property: Property): boolean {
 
 /** Valor investido dividido entre os cotistas, quando aplicável. */
 export function valuePerCoOwner(property: Property): number | null {
-  if (!property.coOwners || property.coOwners <= 0) return null
-  return totalInvested(property) / property.coOwners
+  if (property.cotistaIds.length === 0) return null
+  return totalInvested(property) / property.cotistaIds.length
+}
+
+/** Imóveis dos quais um cotista participa. */
+export function propertiesForCotista(properties: Property[], cotistaId: string): Property[] {
+  return properties.filter((p) => p.cotistaIds.includes(cotistaId))
+}
+
+/** Soma da parte investida por um cotista, considerando a divisão em cada imóvel do qual participa. */
+export function investedByCotista(properties: Property[], cotistaId: string): number {
+  return propertiesForCotista(properties, cotistaId).reduce((sum, p) => sum + (valuePerCoOwner(p) ?? 0), 0)
 }
 
 /** Lista ordenada dos nomes de etapa distintos usados em todos os imóveis (para a visão em tabela). */

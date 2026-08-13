@@ -2,7 +2,7 @@ import type { HTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttribut
 import { cn } from '@/lib/cn'
 
 const fieldClasses =
-  'w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:focus:ring-amber-400'
+  'w-full rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700 dark:focus:ring-orange-400'
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={cn(fieldClasses, className)} {...props} />

@@ -97,8 +97,8 @@ export interface Property {
   marketValue: number | null
   /** Imóvel comprado com financiamento (ex.: Caixa) em vez de à vista. */
   financed: boolean
-  /** Número de cotistas que dividem a compra deste imóvel. */
-  coOwners: number | null
+  /** Cotistas que dividem a compra deste imóvel (ids de Cotista). */
+  cotistaIds: string[]
   /** Foto de capa do imóvel, como data URL (já redimensionada/comprimida no upload). */
   photoUrl: string | null
   status: PropertyStatus
@@ -122,3 +122,29 @@ export const DEFAULT_STAGE_NAMES = [
   'Venda',
   'GCAP (imposto de renda)',
 ]
+
+/** Pessoa que participa da compra de um ou mais imóveis. */
+export interface Cotista {
+  id: string
+  name: string
+  phone: string
+  email: string
+  notes: string
+  createdAt: string
+}
+
+/** Simulação salva na calculadora de investimento. */
+export interface Simulation {
+  id: string
+  label: string
+  createdAt: string
+  evaluationValue: number
+  bidValue: number
+  auctioneerCommissionPct: number
+  itbiPct: number
+  registryCosts: number
+  renovationCost: number
+  otherCosts: number
+  saleValue: number
+  coOwnersCount: number
+}

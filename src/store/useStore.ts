@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Property, Stage, StageStatus, ValueEntry } from '@/types'
+import type { Cotista, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
 import { DEFAULT_STAGE_NAMES } from '@/types'
 
 function makeId(): string {
@@ -26,6 +26,10 @@ export type NewPropertyInput = Omit<
   'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values'
 >
 
+export type NewCotistaInput = Omit<Cotista, 'id' | 'createdAt'>
+
+export type NewSimulationInput = Omit<Simulation, 'id' | 'createdAt'>
+
 interface StoreState {
   properties: Property[]
   addProperty: (input: NewPropertyInput) => string
@@ -40,6 +44,15 @@ interface StoreState {
   addValueEntry: (propertyId: string, entry: Omit<ValueEntry, 'id'>) => void
   updateValueEntry: (propertyId: string, entryId: string, patch: Partial<Omit<ValueEntry, 'id'>>) => void
   deleteValueEntry: (propertyId: string, entryId: string) => void
+
+  cotistas: Cotista[]
+  addCotista: (input: NewCotistaInput) => string
+  updateCotista: (id: string, patch: Partial<NewCotistaInput>) => void
+  deleteCotista: (id: string) => void
+
+  simulations: Simulation[]
+  addSimulation: (input: NewSimulationInput) => void
+  deleteSimulation: (id: string) => void
 }
 
 export const useStore = create<StoreState>()(
@@ -155,7 +168,57 @@ export const useStore = create<StoreState>()(
           ),
         }))
       },
+
+      cotistas: [],
+
+      addCotista: (input) => {
+        const id = makeId()
+        set((state) => ({ cotistas: [...state.cotistas, { ...input, id, createdAt: nowISO() }] }))
+        return id
+      },
+
+      updateCotista: (id, patch) => {
+        set((state) => ({
+          cotistas: state.cotistas.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+        }))
+      },
+
+      deleteCotista: (id) => {
+        set((state) => ({
+          cotistas: state.cotistas.filter((c) => c.id !== id),
+          // Remove o vínculo desse cotista de qualquer imóvel, sem apagar os imóveis.
+          properties: state.properties.map((p) =>
+            p.cotistaIds.includes(id) ? { ...p, cotistaIds: p.cotistaIds.filter((cid) => cid !== id) } : p,
+          ),
+        }))
+      },
+
+      simulations: [],
+
+      addSimulation: (input) => {
+        set((state) => ({
+          simulations: [{ ...input, id: makeId(), createdAt: nowISO() }, ...state.simulations],
+        }))
+      },
+
+      deleteSimulation: (id) => {
+        set((state) => ({ simulations: state.simulations.filter((s) => s.id !== id) }))
+      },
     }),
-    { name: 'arrematacao-store' },
+    {
+      name: 'arrematacao-store',
+      version: 1,
+      migrate: (persisted) => {
+        const state = persisted as { properties?: Array<Record<string, unknown>>; cotistas?: Cotista[]; simulations?: Simulation[] }
+        return {
+          properties: (state.properties ?? []).map((p) => ({
+            ...p,
+            cotistaIds: Array.isArray(p.cotistaIds) ? p.cotistaIds : [],
+          })),
+          cotistas: state.cotistas ?? [],
+          simulations: state.simulations ?? [],
+        }
+      },
+    },
   ),
 )
