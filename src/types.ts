@@ -99,6 +99,8 @@ export interface Property {
   financed: boolean
   /** Número de cotistas que dividem a compra deste imóvel. */
   coOwners: number | null
+  /** Foto de capa do imóvel, como data URL (já redimensionada/comprimida no upload). */
+  photoUrl: string | null
   status: PropertyStatus
   notes: string
   createdAt: string

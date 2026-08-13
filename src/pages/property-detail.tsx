@@ -77,28 +77,37 @@ export default function PropertyDetail() {
         </div>
       </div>
 
-      <Card className="grid grid-cols-1 gap-x-6 gap-y-3 p-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
-        <InfoItem icon={<Landmark className="h-3.5 w-3.5" />} label="Leiloeiro / instituição" value={property.auctionHouse || '—'} />
-        <InfoItem label="Código" value={property.bankCode || '—'} />
-        <InfoItem label="Nº do processo/edital" value={property.processNumber || '—'} />
-        <InfoItem label="Data do leilão/arremate" value={formatDate(property.auctionDate)} />
-        <InfoItem label="Valor de avaliação" value={formatCurrency(property.evaluationValue)} />
-        <InfoItem icon={<Users className="h-3.5 w-3.5" />} label="Cotistas" value={property.coOwners ? String(property.coOwners) : '—'} />
-        {property.financed && (
-          <InfoItem label="Financiamento" value="Imóvel financiado" />
+      <div className="flex flex-col gap-4 lg:flex-row">
+        {property.photoUrl && (
+          <img
+            src={property.photoUrl}
+            alt={property.title}
+            className="aspect-video w-full rounded-2xl object-cover ring-1 ring-slate-200 lg:w-72 lg:shrink-0 dark:ring-slate-800"
+          />
         )}
-        {property.auctionUrl && (
-          <a
-            href={property.auctionUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 text-sky-600 hover:underline dark:text-sky-400"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Ver edital/anúncio
-          </a>
-        )}
-      </Card>
+        <Card className="grid flex-1 grid-cols-1 gap-x-6 gap-y-3 p-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <InfoItem icon={<Landmark className="h-3.5 w-3.5" />} label="Leiloeiro / instituição" value={property.auctionHouse || '—'} />
+          <InfoItem label="Código" value={property.bankCode || '—'} />
+          <InfoItem label="Nº do processo/edital" value={property.processNumber || '—'} />
+          <InfoItem label="Data do leilão/arremate" value={formatDate(property.auctionDate)} />
+          <InfoItem label="Valor de avaliação" value={formatCurrency(property.evaluationValue)} />
+          <InfoItem icon={<Users className="h-3.5 w-3.5" />} label="Cotistas" value={property.coOwners ? String(property.coOwners) : '—'} />
+          {property.financed && (
+            <InfoItem label="Financiamento" value="Imóvel financiado" />
+          )}
+          {property.auctionUrl && (
+            <a
+              href={property.auctionUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 text-sky-600 hover:underline dark:text-sky-400"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Ver edital/anúncio
+            </a>
+          )}
+        </Card>
+      </div>
 
       {property.notes && (
         <Card className="p-4 text-sm text-slate-600 dark:text-slate-400">

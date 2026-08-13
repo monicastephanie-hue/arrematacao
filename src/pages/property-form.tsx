@@ -9,6 +9,7 @@ import { STATUS_META, STATUS_ORDER } from '@/types'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FieldGroup, Input, Label, Select, Textarea } from '@/components/ui/field'
+import { PhotoUpload } from '@/components/photo-upload'
 
 const emptyForm: NewPropertyInput = {
   title: '',
@@ -22,6 +23,7 @@ const emptyForm: NewPropertyInput = {
   marketValue: null,
   financed: false,
   coOwners: null,
+  photoUrl: null,
   status: 'em_andamento',
   notes: '',
 }
@@ -50,6 +52,7 @@ export default function PropertyForm() {
           marketValue: existing.marketValue,
           financed: existing.financed,
           coOwners: existing.coOwners,
+          photoUrl: existing.photoUrl,
           status: existing.status,
           notes: existing.notes,
         }
@@ -100,6 +103,8 @@ export default function PropertyForm() {
               placeholder="Ex.: Bela Vista - André"
             />
           </FieldGroup>
+
+          <PhotoUpload value={form.photoUrl} onChange={(photoUrl) => set('photoUrl', photoUrl)} />
 
           <FieldGroup>
             <Label htmlFor="address">Endereço</Label>

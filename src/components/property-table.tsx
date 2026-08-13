@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Home } from 'lucide-react'
 import type { Property } from '@/types'
 import { STAGE_STATUS_META } from '@/types'
 import { StatusBadge } from '@/components/status-badge'
@@ -37,19 +38,30 @@ export function PropertyTable({ properties }: { properties: Property[] }) {
           {properties.map((property, index) => (
             <tr key={property.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
               <td className="px-3 py-2 text-slate-400">{index + 1}</td>
-              <td className="max-w-[220px] px-3 py-2">
-                <Link
-                  to={`/imoveis/${property.id}`}
-                  className="block truncate font-medium text-slate-800 hover:underline dark:text-slate-200"
-                  title={property.title}
-                >
-                  {property.title}
-                </Link>
-                {property.address && (
-                  <span className="block truncate text-[11px] text-slate-400" title={property.address}>
-                    {property.address}
-                  </span>
-                )}
+              <td className="max-w-[240px] px-3 py-2">
+                <div className="flex items-center gap-2">
+                  {property.photoUrl ? (
+                    <img src={property.photoUrl} alt="" className="h-8 w-11 shrink-0 rounded-md object-cover" />
+                  ) : (
+                    <div className="flex h-8 w-11 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-800">
+                      <Home className="h-3.5 w-3.5 text-slate-300 dark:text-slate-600" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <Link
+                      to={`/imoveis/${property.id}`}
+                      className="block truncate font-medium text-slate-800 hover:underline dark:text-slate-200"
+                      title={property.title}
+                    >
+                      {property.title}
+                    </Link>
+                    {property.address && (
+                      <span className="block truncate text-[11px] text-slate-400" title={property.address}>
+                        {property.address}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </td>
               <td className="px-3 py-2 whitespace-nowrap text-slate-500 dark:text-slate-400">
                 {property.bankCode || '—'}
