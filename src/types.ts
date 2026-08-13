@@ -81,6 +81,17 @@ export interface ValueEntry {
   description: string
 }
 
+/** Documento anexado ao imóvel (edital, matrícula, laudo, etc.), salvo como data URL. */
+export interface Attachment {
+  id: string
+  name: string
+  fileName: string
+  mimeType: string
+  size: number
+  dataUrl: string
+  uploadedAt: string
+}
+
 export interface Property {
   id: string
   title: string
@@ -107,6 +118,7 @@ export interface Property {
   updatedAt: string
   stages: Stage[]
   values: ValueEntry[]
+  attachments: Attachment[]
 }
 
 /** Fluxo padrão observado no controle atual em planilha: do pagamento do arremate até a venda. */
@@ -129,22 +141,85 @@ export interface Cotista {
   name: string
   phone: string
   email: string
+  /** Qualificação civil completa (nacionalidade, estado civil, profissão, CPF, RG, endereço...), pronta para colar em contratos. */
+  qualification: string
   notes: string
   createdAt: string
 }
+
+export type AuctionKind = 'judicial' | 'extrajudicial'
+export type PaymentKind = 'avista' | 'parcelado'
+export type CartorioBase = 'avaliacao' | 'lance' | 'venda'
+
+export const AUCTION_KIND_LABELS: Record<AuctionKind, string> = {
+  judicial: 'Judicial',
+  extrajudicial: 'Extrajudicial',
+}
+
+export const PAYMENT_KIND_LABELS: Record<PaymentKind, string> = {
+  avista: 'À vista',
+  parcelado: 'Parcelado',
+}
+
+export const CARTORIO_BASE_LABELS: Record<CartorioBase, string> = {
+  avaliacao: 'Valor de avaliação',
+  lance: 'Valor do lance',
+  venda: 'Valor de venda',
+}
+
+export const BRAZILIAN_STATES = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+  'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+]
 
 /** Simulação salva na calculadora de investimento. */
 export interface Simulation {
   id: string
   label: string
   createdAt: string
-  evaluationValue: number
+
+  // Informações básicas do leilão
+  auctionKind: AuctionKind
   bidValue: number
-  auctioneerCommissionPct: number
-  itbiPct: number
-  registryCosts: number
-  renovationCost: number
-  otherCosts: number
+  cep: string
+  state: string
+  city: string
+  auctionUrl: string
+  correctionIndexPct: number // usado no lugar do CEP quando o pagamento é parcelado
+
+  // Receitas
   saleValue: number
+  saleMarkup: number
+  saleDiscount: number
+  monthlyRentalIncome: number
+  brokerPct: number
+  auctioneerPct: number
+
+  // Despesas — custos cartoriais
+  registryAuto: boolean
+  registryBase: CartorioBase
+  fiscalEvaluation: number
+  registryEstimatedPct: number
+  registryManualCost: number
+
+  // Despesas — demais
+  itbiPct: number
+  monthlyIptu: number
+  monthlyCondo: number
+  vacancyRenovationCost: number
+  opportunityCostPctYear: number
+  incomeTaxPct: number
+  additionalCosts: number
+  advisoryCost: number
+
+  // Pagamento
+  paymentKind: PaymentKind
+  cashDiscount: number
+
+  // Detalhes da simulação
+  holdingMonths: number
+  minProfitPct: number
+  bidIncrement: number
+  monthsToTitle: number
   coOwnersCount: number
 }

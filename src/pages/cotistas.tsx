@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown, Mail, Pencil, Phone, Plus, Trash2, Users } from 'lucide-react'
+import { Check, ChevronDown, Copy, Mail, Pencil, Phone, Plus, Trash2, Users } from 'lucide-react'
 import { useStore } from '@/store/useStore'
 import type { Cotista } from '@/types'
 import { Card } from '@/components/ui/card'
@@ -155,7 +155,16 @@ export default function Cotistas() {
                 </button>
 
                 {expanded && (
-                  <div className="bg-slate-50 px-4 py-3 dark:bg-slate-950/40">
+                  <div className="flex flex-col gap-3 bg-slate-50 px-4 py-3 dark:bg-slate-950/40">
+                    {cotista.qualification && (
+                      <div className="rounded-lg bg-white p-3 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <p className="text-xs font-medium text-slate-400">Qualificação</p>
+                          <CopyButton text={cotista.qualification} />
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap text-slate-600 dark:text-slate-400">{cotista.qualification}</p>
+                      </div>
+                    )}
                     {linkedProperties.length === 0 ? (
                       <p className="text-xs text-slate-400">Ainda não participa de nenhum imóvel.</p>
                     ) : (
@@ -193,5 +202,40 @@ export default function Cotistas() {
         }}
       />
     </div>
+  )
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // clipboard indisponível — ignora silenciosamente
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+    >
+      {copied ? (
+        <>
+          <Check className="h-3 w-3" />
+          Copiado
+        </>
+      ) : (
+        <>
+          <Copy className="h-3 w-3" />
+          Copiar
+        </>
+      )}
+    </button>
   )
 }

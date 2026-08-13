@@ -52,7 +52,7 @@ function NavLinks() {
 
 export function Sidebar() {
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-slate-200 bg-white px-3 py-4 lg:flex dark:border-slate-800 dark:bg-slate-900">
+    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-slate-200 bg-white px-3 py-4 lg:flex print:hidden dark:border-slate-800 dark:bg-slate-900">
       <Brand />
       <NavLinks />
       <p className="mt-auto px-3 text-[11px] text-slate-300 dark:text-slate-600">Dados salvos neste navegador</p>
@@ -62,7 +62,7 @@ export function Sidebar() {
 
 export function MobileNav() {
   return (
-    <div className="scrollbar-thin sticky top-0 z-40 flex items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden dark:border-slate-800 dark:bg-slate-900">
+    <div className="scrollbar-thin sticky top-0 z-40 flex items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden print:hidden dark:border-slate-800 dark:bg-slate-900">
       {NAV_GROUPS.flatMap((g) => g.items).map((item) => (
         <NavLink
           key={item.to}

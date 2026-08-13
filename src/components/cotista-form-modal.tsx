@@ -6,7 +6,7 @@ import { FieldGroup, Input, Label, Textarea } from '@/components/ui/field'
 
 type FormValue = Omit<Cotista, 'id' | 'createdAt'>
 
-const emptyValue: FormValue = { name: '', phone: '', email: '', notes: '' }
+const emptyValue: FormValue = { name: '', phone: '', email: '', qualification: '', notes: '' }
 
 export function CotistaFormModal({
   open,
@@ -36,7 +36,7 @@ export function CotistaFormModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={initial ? 'Editar cotista' : 'Novo cotista'}>
+    <Modal open={open} onClose={onClose} title={initial ? 'Editar cotista' : 'Novo cotista'} widthClassName="max-w-lg">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <FieldGroup>
           <Label htmlFor="cotista-name">Nome</Label>
@@ -56,6 +56,19 @@ export function CotistaFormModal({
             <Input id="cotista-email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
           </FieldGroup>
         </div>
+        <FieldGroup>
+          <Label htmlFor="cotista-qualification" hint="opcional">
+            Qualificação
+          </Label>
+          <Textarea
+            id="cotista-qualification"
+            value={form.qualification}
+            onChange={(e) => set('qualification', e.target.value)}
+            placeholder="Ex.: brasileiro(a), casado(a), profissão, portador(a) do RG nº..., inscrito(a) no CPF sob o nº..., residente e domiciliado(a) em..."
+            className="min-h-24"
+          />
+          <p className="mt-1 text-xs text-slate-400">Fica pronta para colar no preâmbulo de contratos e procurações.</p>
+        </FieldGroup>
         <FieldGroup>
           <Label htmlFor="cotista-notes" hint="opcional">
             Observações

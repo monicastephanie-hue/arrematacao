@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Cotista, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
+import type { Attachment, Cotista, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
 import { DEFAULT_STAGE_NAMES } from '@/types'
+import { DEFAULT_NOTIFICATION_TEMPLATE } from '@/lib/notification-template'
 
 function makeId(): string {
   return (crypto as { randomUUID?: () => string }).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
@@ -23,7 +24,7 @@ export function createDefaultStages(): Stage[] {
 
 export type NewPropertyInput = Omit<
   Property,
-  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values'
+  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values' | 'attachments'
 >
 
 export type NewCotistaInput = Omit<Cotista, 'id' | 'createdAt'>
@@ -40,10 +41,16 @@ interface StoreState {
   updateStage: (propertyId: string, stageId: string, patch: Partial<Omit<Stage, 'id'>>) => void
   deleteStage: (propertyId: string, stageId: string) => void
   reorderStages: (propertyId: string, orderedIds: string[]) => void
+  /** Move um imóvel para outra etapa do funil (drag-and-drop no Kanban): marca as etapas
+   *  anteriores como concluídas, a etapa alvo como em andamento, e reabre as posteriores. */
+  setPropertyCurrentStage: (propertyId: string, stageName: string) => void
 
   addValueEntry: (propertyId: string, entry: Omit<ValueEntry, 'id'>) => void
   updateValueEntry: (propertyId: string, entryId: string, patch: Partial<Omit<ValueEntry, 'id'>>) => void
   deleteValueEntry: (propertyId: string, entryId: string) => void
+
+  addAttachment: (propertyId: string, attachment: Omit<Attachment, 'id'>) => void
+  deleteAttachment: (propertyId: string, attachmentId: string) => void
 
   cotistas: Cotista[]
   addCotista: (input: NewCotistaInput) => string
@@ -53,6 +60,9 @@ interface StoreState {
   simulations: Simulation[]
   addSimulation: (input: NewSimulationInput) => void
   deleteSimulation: (id: string) => void
+
+  notificationTemplate: string
+  setNotificationTemplate: (template: string) => void
 }
 
 export const useStore = create<StoreState>()(
@@ -69,6 +79,7 @@ export const useStore = create<StoreState>()(
           updatedAt: nowISO(),
           stages: createDefaultStages(),
           values: [],
+          attachments: [],
         }
         set((state) => ({ properties: [property, ...state.properties] }))
         return id
@@ -135,6 +146,26 @@ export const useStore = create<StoreState>()(
         }))
       },
 
+      setPropertyCurrentStage: (propertyId, stageName) => {
+        set((state) => ({
+          properties: state.properties.map((p) => {
+            if (p.id !== propertyId) return p
+            const targetIndex = p.stages.findIndex((s) => s.name === stageName)
+            if (targetIndex === -1) return p
+            const today = new Date().toISOString().slice(0, 10)
+            return {
+              ...p,
+              updatedAt: nowISO(),
+              stages: p.stages.map((s, i) => {
+                if (i < targetIndex) return s.status === 'concluida' ? s : { ...s, status: 'concluida', date: s.date ?? today }
+                if (i === targetIndex) return { ...s, status: 'em_andamento' }
+                return s.status === 'pendente' ? s : { ...s, status: 'pendente' }
+              }),
+            }
+          }),
+        }))
+      },
+
       addValueEntry: (propertyId, entry) => {
         set((state) => ({
           properties: state.properties.map((p) =>
@@ -164,6 +195,26 @@ export const useStore = create<StoreState>()(
           properties: state.properties.map((p) =>
             p.id === propertyId
               ? { ...p, updatedAt: nowISO(), values: p.values.filter((v) => v.id !== entryId) }
+              : p,
+          ),
+        }))
+      },
+
+      addAttachment: (propertyId, attachment) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id === propertyId
+              ? { ...p, updatedAt: nowISO(), attachments: [...p.attachments, { ...attachment, id: makeId() }] }
+              : p,
+          ),
+        }))
+      },
+
+      deleteAttachment: (propertyId, attachmentId) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id === propertyId
+              ? { ...p, updatedAt: nowISO(), attachments: p.attachments.filter((a) => a.id !== attachmentId) }
               : p,
           ),
         }))
@@ -204,19 +255,36 @@ export const useStore = create<StoreState>()(
       deleteSimulation: (id) => {
         set((state) => ({ simulations: state.simulations.filter((s) => s.id !== id) }))
       },
+
+      notificationTemplate: DEFAULT_NOTIFICATION_TEMPLATE,
+
+      setNotificationTemplate: (template) => {
+        set({ notificationTemplate: template })
+      },
     }),
     {
       name: 'arrematacao-store',
-      version: 1,
+      version: 2,
       migrate: (persisted) => {
-        const state = persisted as { properties?: Array<Record<string, unknown>>; cotistas?: Cotista[]; simulations?: Simulation[] }
+        const state = persisted as {
+          properties?: Array<Record<string, unknown>>
+          cotistas?: Array<Record<string, unknown>>
+          simulations?: Simulation[]
+          notificationTemplate?: string
+        }
         return {
           properties: (state.properties ?? []).map((p) => ({
             ...p,
             cotistaIds: Array.isArray(p.cotistaIds) ? p.cotistaIds : [],
+            attachments: Array.isArray(p.attachments) ? p.attachments : [],
           })),
-          cotistas: state.cotistas ?? [],
+          cotistas: (state.cotistas ?? []).map((c) => ({
+            ...c,
+            qualification: typeof c.qualification === 'string' ? c.qualification : '',
+          })),
           simulations: state.simulations ?? [],
+          notificationTemplate:
+            typeof state.notificationTemplate === 'string' ? state.notificationTemplate : DEFAULT_NOTIFICATION_TEMPLATE,
         }
       },
     },

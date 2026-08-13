@@ -17,7 +17,7 @@ export function CotistaPicker({ value, onChange }: { value: string[]; onChange: 
     e.preventDefault()
     const name = newName.trim()
     if (!name) return
-    const id = addCotista({ name, phone: '', email: '', notes: '' })
+    const id = addCotista({ name, phone: '', email: '', qualification: '', notes: '' })
     onChange([...value, id])
     setNewName('')
   }

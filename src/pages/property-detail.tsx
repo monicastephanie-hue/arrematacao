@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/status-badge'
 import { ProgressBar } from '@/components/progress-bar'
 import { StagesEditor } from '@/components/stages-editor'
 import { ValuesEditor } from '@/components/values-editor'
+import { AttachmentsEditor } from '@/components/attachments-editor'
 import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -172,6 +173,11 @@ export default function PropertyDetail() {
         <ValuesEditor propertyId={property.id} values={property.values} />
       </div>
 
+      <div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Anexos</h2>
+        <AttachmentsEditor propertyId={property.id} attachments={property.attachments} />
+      </div>
+
       <ConfirmDialog
         open={confirmDelete}
         title="Excluir imóvel"
@@ -179,7 +185,7 @@ export default function PropertyDetail() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={() => {
           deleteProperty(property.id)
-          navigate('/')
+          navigate('/imoveis')
         }}
       />
     </div>
