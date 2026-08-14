@@ -381,8 +381,8 @@ export default function Notification() {
               Imprimir / Salvar PDF
             </Button>
           </div>
-          <Card className="flex flex-col items-center gap-4 p-8 print:border-0 print:p-0 print:shadow-none">
-            <img src={letterhead ?? defaultLetterhead} alt="" className="h-20 w-auto object-contain" />
+          <Card className="flex flex-col items-center gap-6 p-8 print:border-0 print:p-0 print:shadow-none">
+            <img src={letterhead ?? defaultLetterhead} alt="" className="h-56 w-auto object-contain sm:h-64" />
             <p className="w-full font-serif text-sm leading-relaxed whitespace-pre-wrap text-slate-800 dark:text-slate-200">{merged}</p>
           </Card>
         </div>

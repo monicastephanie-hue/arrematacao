@@ -261,8 +261,8 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 4,
-      migrate: (persisted) => {
+      version: 5,
+      migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
           cotistas?: Array<Record<string, unknown>>
@@ -270,6 +270,10 @@ export const useStore = create<StoreState>()(
           notificationTemplate?: string
           notificationLetterhead?: string | null
         }
+        // O modelo de notificação foi reescrito na versão 5. Quem já tinha o modelo
+        // padrão antigo salvo (não uma personalização de verdade, já que o recurso é
+        // novo) recebe o texto atualizado automaticamente nesta migração.
+        const forceTemplateReset = version < 5
         return {
           properties: (state.properties ?? []).map((p) => ({
             ...p,
@@ -283,7 +287,9 @@ export const useStore = create<StoreState>()(
           })),
           simulations: state.simulations ?? [],
           notificationTemplate:
-            typeof state.notificationTemplate === 'string' ? state.notificationTemplate : DEFAULT_NOTIFICATION_TEMPLATE,
+            !forceTemplateReset && typeof state.notificationTemplate === 'string'
+              ? state.notificationTemplate
+              : DEFAULT_NOTIFICATION_TEMPLATE,
           notificationLetterhead:
             typeof state.notificationLetterhead === 'string' ? state.notificationLetterhead : null,
         }
