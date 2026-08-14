@@ -28,6 +28,18 @@ export const STATUS_META: Record<
   },
 }
 
+/** Status do quadro de Gerenciamento (Kanban) — controle à parte, não associado às etapas do imóvel. */
+export type KanbanStatus = 'arrematado' | 'em_reforma' | 'pronto_venda' | 'vendido'
+
+export const KANBAN_STATUS_ORDER: KanbanStatus[] = ['arrematado', 'em_reforma', 'pronto_venda', 'vendido']
+
+export const KANBAN_STATUS_META: Record<KanbanStatus, { label: string; dot: string }> = {
+  arrematado: { label: 'Imóvel Arrematado', dot: 'bg-sky-400' },
+  em_reforma: { label: 'Imóvel em Reforma', dot: 'bg-amber-400' },
+  pronto_venda: { label: 'Imóvel Pronto para venda', dot: 'bg-violet-400' },
+  vendido: { label: 'Imóvel Vendido', dot: 'bg-emerald-400' },
+}
+
 export type StageStatus = 'pendente' | 'em_andamento' | 'concluida'
 
 export const STAGE_STATUS_META: Record<StageStatus, { label: string; className: string; dot: string }> = {
@@ -113,6 +125,8 @@ export interface Property {
   /** Foto de capa do imóvel, como data URL (já redimensionada/comprimida no upload). */
   photoUrl: string | null
   status: PropertyStatus
+  /** Posição no quadro de Gerenciamento (Kanban) — controle independente das etapas. */
+  kanbanStatus: KanbanStatus
   notes: string
   createdAt: string
   updatedAt: string

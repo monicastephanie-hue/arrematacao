@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Banknote, ExternalLink, Landmark, MapPin, Pencil, Trash2, Users } from 'lucide-react'
 import { useStore } from '@/store/useStore'
-import type { PropertyStatus } from '@/types'
-import { STATUS_META, STATUS_ORDER } from '@/types'
+import type { KanbanStatus, PropertyStatus } from '@/types'
+import { KANBAN_STATUS_META, KANBAN_STATUS_ORDER, STATUS_META, STATUS_ORDER } from '@/types'
 import { StatCard } from '@/components/stat-card'
 import { StatusBadge } from '@/components/status-badge'
 import { ProgressBar } from '@/components/progress-bar'
@@ -24,6 +24,7 @@ export default function PropertyDetail() {
   const property = useStore((s) => s.properties.find((p) => p.id === id))
   const cotistas = useStore((s) => s.cotistas)
   const updateProperty = useStore((s) => s.updateProperty)
+  const setPropertyKanbanStatus = useStore((s) => s.setPropertyKanbanStatus)
   const deleteProperty = useStore((s) => s.deleteProperty)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -57,7 +58,7 @@ export default function PropertyDetail() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select
             value={property.status}
             onChange={(e) => updateProperty(property.id, { status: e.target.value as PropertyStatus })}
@@ -66,6 +67,18 @@ export default function PropertyDetail() {
             {STATUS_ORDER.map((s) => (
               <option key={s} value={s}>
                 {STATUS_META[s].label}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={property.kanbanStatus}
+            onChange={(e) => setPropertyKanbanStatus(property.id, e.target.value as KanbanStatus)}
+            className="w-auto"
+            title="Coluna no quadro de Gerenciamento"
+          >
+            {KANBAN_STATUS_ORDER.map((s) => (
+              <option key={s} value={s}>
+                {KANBAN_STATUS_META[s].label}
               </option>
             ))}
           </Select>

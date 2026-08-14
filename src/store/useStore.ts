@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Attachment, Cotista, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
+import type { Attachment, Cotista, KanbanStatus, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
 import { DEFAULT_STAGE_NAMES } from '@/types'
 import { DEFAULT_NOTIFICATION_TEMPLATE } from '@/lib/notification-template'
 
@@ -24,7 +24,7 @@ export function createDefaultStages(): Stage[] {
 
 export type NewPropertyInput = Omit<
   Property,
-  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values' | 'attachments'
+  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values' | 'attachments' | 'kanbanStatus'
 >
 
 export type NewCotistaInput = Omit<Cotista, 'id' | 'createdAt'>
@@ -41,9 +41,9 @@ interface StoreState {
   updateStage: (propertyId: string, stageId: string, patch: Partial<Omit<Stage, 'id'>>) => void
   deleteStage: (propertyId: string, stageId: string) => void
   reorderStages: (propertyId: string, orderedIds: string[]) => void
-  /** Move um imóvel para outra etapa do funil (drag-and-drop no Kanban): marca as etapas
-   *  anteriores como concluídas, a etapa alvo como em andamento, e reabre as posteriores. */
-  setPropertyCurrentStage: (propertyId: string, stageName: string) => void
+  /** Move um imóvel para outra coluna do quadro de Gerenciamento (Kanban) — controle
+   *  independente das etapas, usado só para o drag-and-drop. */
+  setPropertyKanbanStatus: (propertyId: string, kanbanStatus: KanbanStatus) => void
 
   addValueEntry: (propertyId: string, entry: Omit<ValueEntry, 'id'>) => void
   updateValueEntry: (propertyId: string, entryId: string, patch: Partial<Omit<ValueEntry, 'id'>>) => void
@@ -63,6 +63,10 @@ interface StoreState {
 
   notificationTemplate: string
   setNotificationTemplate: (template: string) => void
+
+  /** Brasão/logo do cabeçalho da notificação. null = usa a imagem padrão do app. */
+  notificationLetterhead: string | null
+  setNotificationLetterhead: (dataUrl: string | null) => void
 }
 
 export const useStore = create<StoreState>()(
@@ -80,6 +84,7 @@ export const useStore = create<StoreState>()(
           stages: createDefaultStages(),
           values: [],
           attachments: [],
+          kanbanStatus: 'arrematado',
         }
         set((state) => ({ properties: [property, ...state.properties] }))
         return id
@@ -146,23 +151,9 @@ export const useStore = create<StoreState>()(
         }))
       },
 
-      setPropertyCurrentStage: (propertyId, stageName) => {
+      setPropertyKanbanStatus: (propertyId, kanbanStatus) => {
         set((state) => ({
-          properties: state.properties.map((p) => {
-            if (p.id !== propertyId) return p
-            const targetIndex = p.stages.findIndex((s) => s.name === stageName)
-            if (targetIndex === -1) return p
-            const today = new Date().toISOString().slice(0, 10)
-            return {
-              ...p,
-              updatedAt: nowISO(),
-              stages: p.stages.map((s, i) => {
-                if (i < targetIndex) return s.status === 'concluida' ? s : { ...s, status: 'concluida', date: s.date ?? today }
-                if (i === targetIndex) return { ...s, status: 'em_andamento' }
-                return s.status === 'pendente' ? s : { ...s, status: 'pendente' }
-              }),
-            }
-          }),
+          properties: state.properties.map((p) => (p.id === propertyId ? { ...p, kanbanStatus, updatedAt: nowISO() } : p)),
         }))
       },
 
@@ -261,22 +252,30 @@ export const useStore = create<StoreState>()(
       setNotificationTemplate: (template) => {
         set({ notificationTemplate: template })
       },
+
+      notificationLetterhead: null,
+
+      setNotificationLetterhead: (dataUrl) => {
+        set({ notificationLetterhead: dataUrl })
+      },
     }),
     {
       name: 'arrematacao-store',
-      version: 2,
+      version: 4,
       migrate: (persisted) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
           cotistas?: Array<Record<string, unknown>>
           simulations?: Simulation[]
           notificationTemplate?: string
+          notificationLetterhead?: string | null
         }
         return {
           properties: (state.properties ?? []).map((p) => ({
             ...p,
             cotistaIds: Array.isArray(p.cotistaIds) ? p.cotistaIds : [],
             attachments: Array.isArray(p.attachments) ? p.attachments : [],
+            kanbanStatus: typeof p.kanbanStatus === 'string' ? p.kanbanStatus : 'arrematado',
           })),
           cotistas: (state.cotistas ?? []).map((c) => ({
             ...c,
@@ -285,6 +284,8 @@ export const useStore = create<StoreState>()(
           simulations: state.simulations ?? [],
           notificationTemplate:
             typeof state.notificationTemplate === 'string' ? state.notificationTemplate : DEFAULT_NOTIFICATION_TEMPLATE,
+          notificationLetterhead:
+            typeof state.notificationLetterhead === 'string' ? state.notificationLetterhead : null,
         }
       },
     },
