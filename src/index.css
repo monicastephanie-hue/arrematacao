@@ -24,3 +24,33 @@ body {
 input[type='date']::-webkit-calendar-picker-indicator {
   @apply cursor-pointer opacity-60 dark:invert;
 }
+
+/* Trilha de etapas: linha animada sinalizando a transição da etapa concluída
+   mais recente para a etapa em andamento. Vira uma cor sólida quando o
+   usuário prefere menos movimento na tela. */
+.stage-flow-line {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--flow-color) 0,
+    var(--flow-color) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  background-size: 24px 100%;
+  animation: stage-flow 0.7s linear infinite;
+}
+@keyframes stage-flow {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -24px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-flow-line {
+    animation: none;
+    background-image: none;
+    background-color: var(--flow-color);
+  }
+}

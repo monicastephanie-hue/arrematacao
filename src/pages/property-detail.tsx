@@ -8,6 +8,7 @@ import { StatCard } from '@/components/stat-card'
 import { StatusBadge } from '@/components/status-badge'
 import { ProgressBar } from '@/components/progress-bar'
 import { StagesEditor } from '@/components/stages-editor'
+import { StagePinTimeline } from '@/components/stage-pin-timeline'
 import { ValuesEditor } from '@/components/values-editor'
 import { AttachmentsEditor } from '@/components/attachments-editor'
 import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
@@ -164,6 +165,10 @@ export default function PropertyDetail() {
         />
         <StatCard label="Valor por cotista" value={perCoOwner === null ? '—' : formatCurrency(perCoOwner)} />
       </div>
+
+      <Card className="p-4">
+        <StagePinTimeline stages={property.stages} />
+      </Card>
 
       <Card className="p-4">
         <div className="mb-2 flex items-center justify-between">
