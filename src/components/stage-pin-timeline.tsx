@@ -1,5 +1,5 @@
-import { MapPin } from 'lucide-react'
 import type { Stage } from '@/types'
+import { getStageIcon } from '@/lib/stage-icons'
 import { cn } from '@/lib/cn'
 
 const PIN_CLASSES = {
@@ -33,6 +33,7 @@ export function StagePinTimeline({ stages }: { stages: Stage[] }) {
           const isCurrent = stage.status === 'em_andamento'
           const lineToPrev = i > 0 ? lineAfter(stages, i - 1) : null
           const lineToNext = i < stages.length - 1 ? lineAfter(stages, i) : null
+          const StageIcon = getStageIcon(stage.name)
 
           return (
             <div key={stage.id} className="relative flex w-24 shrink-0 flex-col items-center">
@@ -69,7 +70,7 @@ export function StagePinTimeline({ stages }: { stages: Stage[] }) {
                     isCurrent && 'motion-safe:animate-bounce',
                   )}
                 >
-                  <MapPin className="h-3.5 w-3.5" fill={stage.status === 'pendente' ? 'none' : 'currentColor'} />
+                  <StageIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
                 </span>
               </div>
 
