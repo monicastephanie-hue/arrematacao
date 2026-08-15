@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 // credenciais reais neste ambiente. Assim que houver um projeto Supabase
 // configurado (.env preenchido) e o login for testado de ponta a ponta,
 // troque a linha abaixo para `false` para restaurar a trava de autenticação.
-const BYPASS_AUTH_TEMPORARIAMENTE = true
+export const BYPASS_AUTH_TEMPORARIAMENTE = true
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const session = useAuthStore((s) => s.session)

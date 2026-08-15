@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, Loader2, Lock, Mail } from 'lucide-react'
+import { Link, Navigate } from 'react-router-dom'
+import { AlertTriangle, ArrowLeft, ArrowRight, Loader2, Lock, Mail } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { BYPASS_AUTH_TEMPORARIAMENTE } from '@/components/require-auth'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui/field'
 import logo from '@/assets/logo-embarque-nos-leiloes.jpg'
@@ -57,6 +58,16 @@ export default function Landing() {
             <AlertTriangle className="h-3.5 w-3.5 shrink-0 translate-y-0.5" />
             <p>O login ainda não foi configurado neste ambiente.</p>
           </div>
+        )}
+
+        {BYPASS_AUTH_TEMPORARIAMENTE && (
+          <Link
+            to="/imoveis"
+            className="mb-4 flex items-center justify-between gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2.5 text-xs font-medium text-orange-800 transition-colors hover:bg-orange-100 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/15"
+          >
+            <span>Entrar sem login (visualização temporária)</span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+          </Link>
         )}
 
         {mode === 'reset' && resetSent ? (
