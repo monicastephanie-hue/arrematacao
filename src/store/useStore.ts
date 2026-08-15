@@ -261,7 +261,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 5,
+      version: 6,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -280,6 +280,8 @@ export const useStore = create<StoreState>()(
             cotistaIds: Array.isArray(p.cotistaIds) ? p.cotistaIds : [],
             attachments: Array.isArray(p.attachments) ? p.attachments : [],
             kanbanStatus: typeof p.kanbanStatus === 'string' ? p.kanbanStatus : 'arrematado',
+            proposalAttachment: p.proposalAttachment ?? null,
+            billAttachment: p.billAttachment ?? null,
           })),
           cotistas: (state.cotistas ?? []).map((c) => ({
             ...c,

@@ -124,6 +124,10 @@ export interface Property {
   cotistaIds: string[]
   /** Foto de capa do imóvel, como data URL (já redimensionada/comprimida no upload). */
   photoUrl: string | null
+  /** Proposta de arrematação enviada/aceita no leilão. */
+  proposalAttachment: Attachment | null
+  /** Boleto de pagamento do arremate. */
+  billAttachment: Attachment | null
   status: PropertyStatus
   /** Posição no quadro de Gerenciamento (Kanban) — controle independente das etapas. */
   kanbanStatus: KanbanStatus

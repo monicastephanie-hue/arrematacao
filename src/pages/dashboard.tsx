@@ -57,7 +57,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Imóveis</h1>
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Imóveis Arrematados</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">{properties.length} imóveis cadastrados</p>
         </div>
         <Link to="/imoveis/novo">

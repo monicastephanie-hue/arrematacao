@@ -16,7 +16,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Gestão',
     items: [
-      { to: '/imoveis', label: 'Imóveis', icon: Home },
+      { to: '/imoveis', label: 'Imóveis Arrematados', icon: Home },
       { to: '/gerenciamento', label: 'Gerenciamento', icon: KanbanSquare },
       { to: '/cotistas', label: 'Cotistas', icon: Users },
       { to: '/relatorios', label: 'Relatórios', icon: FileBarChart2 },

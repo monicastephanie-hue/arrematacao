@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { FieldGroup, Input, Label, Select, Textarea } from '@/components/ui/field'
 import { PhotoUpload } from '@/components/photo-upload'
 import { CotistaPicker } from '@/components/cotista-picker'
+import { SingleAttachmentUpload } from '@/components/single-attachment-upload'
 
 const emptyForm: NewPropertyInput = {
   title: '',
@@ -25,6 +26,8 @@ const emptyForm: NewPropertyInput = {
   financed: false,
   cotistaIds: [],
   photoUrl: null,
+  proposalAttachment: null,
+  billAttachment: null,
   status: 'em_andamento',
   notes: '',
 }
@@ -54,6 +57,8 @@ export default function PropertyForm() {
           financed: existing.financed,
           cotistaIds: existing.cotistaIds,
           photoUrl: existing.photoUrl,
+          proposalAttachment: existing.proposalAttachment,
+          billAttachment: existing.billAttachment,
           status: existing.status,
           notes: existing.notes,
         }
@@ -158,6 +163,15 @@ export default function PropertyForm() {
             </Label>
             <Input id="auctionUrl" type="url" value={form.auctionUrl} onChange={(e) => set('auctionUrl', e.target.value)} placeholder="https://" />
           </FieldGroup>
+
+          <div className="grid grid-cols-2 gap-4">
+            <SingleAttachmentUpload
+              label="Proposta de Arrematação"
+              value={form.proposalAttachment}
+              onChange={(proposalAttachment) => set('proposalAttachment', proposalAttachment)}
+            />
+            <SingleAttachmentUpload label="Boleto" value={form.billAttachment} onChange={(billAttachment) => set('billAttachment', billAttachment)} />
+          </div>
         </Card>
 
         <Card className="flex flex-col gap-4 p-5">

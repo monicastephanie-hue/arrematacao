@@ -11,6 +11,7 @@ import { StagesEditor } from '@/components/stages-editor'
 import { StagePinTimeline } from '@/components/stage-pin-timeline'
 import { ValuesEditor } from '@/components/values-editor'
 import { AttachmentsEditor } from '@/components/attachments-editor'
+import { SingleAttachmentUpload } from '@/components/single-attachment-upload'
 import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -189,6 +190,22 @@ export default function PropertyDetail() {
       <div>
         <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Valores lançados</h2>
         <ValuesEditor propertyId={property.id} values={property.values} />
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Documentos do arremate</h2>
+        <Card className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+          <SingleAttachmentUpload
+            label="Proposta de Arrematação"
+            value={property.proposalAttachment}
+            onChange={(proposalAttachment) => updateProperty(property.id, { proposalAttachment })}
+          />
+          <SingleAttachmentUpload
+            label="Boleto"
+            value={property.billAttachment}
+            onChange={(billAttachment) => updateProperty(property.id, { billAttachment })}
+          />
+        </Card>
       </div>
 
       <div>
