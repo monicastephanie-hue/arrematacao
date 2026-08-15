@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui/field'
-import logo from '@/assets/logo-embarque-nos-leiloes.svg'
+import logo from '@/assets/logo-embarque-nos-leiloes.jpg'
 
 export default function Landing() {
   const session = useAuthStore((s) => s.session)

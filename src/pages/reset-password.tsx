@@ -4,7 +4,7 @@ import { Check, Loader2, Lock } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui/field'
-import logo from '@/assets/logo-embarque-nos-leiloes.svg'
+import logo from '@/assets/logo-embarque-nos-leiloes.jpg'
 
 export default function ResetPassword() {
   const navigate = useNavigate()

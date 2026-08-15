@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { NAV_GROUPS } from '@/components/nav-items'
 import { useAuthStore } from '@/store/useAuthStore'
 import { cn } from '@/lib/cn'
-import logo from '@/assets/logo-embarque-nos-leiloes.svg'
+import logo from '@/assets/logo-embarque-nos-leiloes.jpg'
 
 function Brand() {
   return (
