@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Placeholder até a logo real do "Embarque nos Leilões" ser enviada como arquivo. -->
+  <circle cx="100" cy="100" r="94" fill="#ffffff" stroke="#ea580c" stroke-width="10" />
+  <text x="100" y="46" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="15" fill="#ea580c" letter-spacing="0.5">EMBARQUE</text>
+  <text x="100" y="64" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="15" fill="#ea580c" letter-spacing="0.5">NOS LEILÕES</text>
+  <g transform="translate(100,120)">
+    <path d="M-34 6 L0 -26 L34 6 L34 34 L10 34 L10 12 L-10 12 L-10 34 L-34 34 Z" fill="#1e293b" />
+    <rect x="-6" y="18" width="12" height="16" fill="#ffffff" />
+  </g>
+</svg>

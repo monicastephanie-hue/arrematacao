@@ -1,5 +1,8 @@
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/components/layout'
+import { RequireAuth } from '@/components/require-auth'
+import Landing from '@/pages/landing'
+import ResetPassword from '@/pages/reset-password'
 import Dashboard from '@/pages/dashboard'
 import PropertyDetail from '@/pages/property-detail'
 import PropertyForm from '@/pages/property-form'
@@ -15,8 +18,15 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Navigate to="/imoveis" replace />} />
+        <Route index element={<Landing />} />
+        <Route path="redefinir-senha" element={<ResetPassword />} />
+        <Route
+          element={
+            <RequireAuth>
+              <Layout />
+            </RequireAuth>
+          }
+        >
           <Route path="imoveis" element={<Dashboard />} />
           <Route path="imoveis/novo" element={<PropertyForm />} />
           <Route path="imoveis/:id" element={<PropertyDetail />} />

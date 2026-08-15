@@ -1,14 +1,14 @@
-import { Gavel } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { NAV_GROUPS } from '@/components/nav-items'
+import { useAuthStore } from '@/store/useAuthStore'
 import { cn } from '@/lib/cn'
+import logo from '@/assets/logo-embarque-nos-leiloes.svg'
 
 function Brand() {
   return (
     <NavLink to="/imoveis" className="flex items-center gap-2 px-2">
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-orange-400 dark:bg-orange-500 dark:text-slate-950">
-        <Gavel className="h-4 w-4" />
-      </span>
+      <img src={logo} alt="Embarque nos Leilões" className="h-8 w-8 shrink-0 rounded-full" />
       <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
         Arrematação
         <span className="block text-[11px] font-normal text-slate-400">controle de leilões</span>
@@ -50,19 +50,48 @@ function NavLinks() {
   )
 }
 
+function AccountFooter({ compact }: { compact?: boolean }) {
+  const session = useAuthStore((s) => s.session)
+  const signOut = useAuthStore((s) => s.signOut)
+  const navigate = useNavigate()
+
+  async function handleSignOut() {
+    await signOut()
+    navigate('/')
+  }
+
+  return (
+    <div className={cn('flex items-center justify-between gap-2 px-2', compact && 'px-0')}>
+      <span className="min-w-0 truncate text-[11px] text-slate-400" title={session?.user.email ?? ''}>
+        {session?.user.email}
+      </span>
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-rose-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-rose-400"
+      >
+        <LogOut className="h-3 w-3" />
+        Sair
+      </button>
+    </div>
+  )
+}
+
 export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-slate-200 bg-white px-3 py-4 lg:flex print:hidden dark:border-slate-800 dark:bg-slate-900">
       <Brand />
       <NavLinks />
-      <p className="mt-auto px-3 text-[11px] text-slate-300 dark:text-slate-600">Dados salvos neste navegador</p>
+      <div className="mt-auto">
+        <AccountFooter />
+      </div>
     </aside>
   )
 }
 
 export function MobileNav() {
   return (
-    <div className="scrollbar-thin sticky top-0 z-40 flex items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden print:hidden dark:border-slate-800 dark:bg-slate-900">
+    <div className="scrollbar-thin sticky top-0 z-40 flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden print:hidden dark:border-slate-800 dark:bg-slate-900">
       {NAV_GROUPS.flatMap((g) => g.items).map((item) => (
         <NavLink
           key={item.to}
@@ -80,6 +109,9 @@ export function MobileNav() {
           {item.label}
         </NavLink>
       ))}
+      <div className="ml-auto shrink-0">
+        <AccountFooter compact />
+      </div>
     </div>
   )
 }
