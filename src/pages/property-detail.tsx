@@ -15,6 +15,7 @@ import { AttachmentsEditor } from '@/components/attachments-editor'
 import { SingleAttachmentUpload } from '@/components/single-attachment-upload'
 import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
 import { Card } from '@/components/ui/card'
+import { Tabs } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/field'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -174,21 +175,36 @@ export default function PropertyDetail() {
       </Card>
 
       <Card className="p-4">
-        <h2 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">Checklist de atividades</h2>
-        <p className="mb-3 text-xs text-slate-400">
-          Marque as atividades de cada etapa. Ao concluir todas, a etapa correspondente é marcada como concluída
-          automaticamente em "Andamento das etapas".
-        </p>
-        <StageChecklist propertyId={property.id} stages={property.stages} />
-      </Card>
-
-      <Card className="p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Andamento das etapas</h2>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{progress}% concluído</span>
-        </div>
-        <ProgressBar value={progress} className="mb-5" />
-        <StagesEditor propertyId={property.id} stages={property.stages} />
+        <Tabs
+          tabs={[
+            {
+              id: 'andamento',
+              label: 'Andamento das etapas',
+              content: (
+                <>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{progress}% concluído</span>
+                  </div>
+                  <ProgressBar value={progress} className="mb-5" />
+                  <StagesEditor propertyId={property.id} stages={property.stages} />
+                </>
+              ),
+            },
+            {
+              id: 'checklist',
+              label: 'Checklist de atividades',
+              content: (
+                <>
+                  <p className="mb-3 text-xs text-slate-400">
+                    Marque as atividades de cada etapa. Ao concluir todas, a etapa correspondente é marcada como
+                    concluída automaticamente na aba "Andamento das etapas".
+                  </p>
+                  <StageChecklist propertyId={property.id} stages={property.stages} />
+                </>
+              ),
+            },
+          ]}
+        />
       </Card>
 
       {series.length >= 2 && (
