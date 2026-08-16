@@ -46,15 +46,24 @@ export function StagesEditor({ propertyId, stages }: { propertyId: string; stage
                 {stage.name}
               </span>
             </div>
-            <Select
-              value={stage.status}
-              onChange={(e) => handleStatusChange(stage, e.target.value as StageStatus)}
-              className="sm:w-40"
-            >
-              <option value="pendente">Pendente</option>
-              <option value="em_andamento">Em andamento</option>
-              <option value="concluida">Concluída</option>
-            </Select>
+            {stage.checklist.length > 0 ? (
+              <span
+                className={cn('text-sm font-medium sm:w-40', meta.className)}
+                title="Definido automaticamente pelo checklist de atividades desta etapa"
+              >
+                {meta.label} <span className="text-xs font-normal text-slate-400">(via checklist)</span>
+              </span>
+            ) : (
+              <Select
+                value={stage.status}
+                onChange={(e) => handleStatusChange(stage, e.target.value as StageStatus)}
+                className="sm:w-40"
+              >
+                <option value="pendente">Pendente</option>
+                <option value="em_andamento">Em andamento</option>
+                <option value="concluida">Concluída</option>
+              </Select>
+            )}
             <Input
               type="date"
               value={stage.date ?? ''}

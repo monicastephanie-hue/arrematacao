@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/status-badge'
 import { ProgressBar } from '@/components/progress-bar'
 import { StagesEditor } from '@/components/stages-editor'
 import { StagePinTimeline } from '@/components/stage-pin-timeline'
+import { StageChecklist } from '@/components/stage-checklist'
 import { ValuesEditor } from '@/components/values-editor'
 import { AttachmentsEditor } from '@/components/attachments-editor'
 import { SingleAttachmentUpload } from '@/components/single-attachment-upload'
@@ -169,6 +170,15 @@ export default function PropertyDetail() {
 
       <Card className="p-4">
         <StagePinTimeline stages={property.stages} />
+      </Card>
+
+      <Card className="p-4">
+        <h2 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">Checklist de atividades</h2>
+        <p className="mb-3 text-xs text-slate-400">
+          Marque as atividades de cada etapa. Ao concluir todas, a etapa correspondente é marcada como concluída
+          automaticamente em "Andamento das etapas".
+        </p>
+        <StageChecklist propertyId={property.id} stages={property.stages} />
       </Card>
 
       <Card className="p-4">

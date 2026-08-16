@@ -48,6 +48,13 @@ export const STAGE_STATUS_META: Record<StageStatus, { label: string; className: 
   concluida: { label: 'Concluída', className: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
 }
 
+/** Item individual do checklist de atividades de uma etapa. */
+export interface ChecklistItem {
+  id: string
+  text: string
+  done: boolean
+}
+
 export interface Stage {
   id: string
   name: string
@@ -56,6 +63,9 @@ export interface Stage {
   date: string | null
   /** Anotação livre com a conclusão/observação da etapa (ex.: "OK - 124k - Dia 30 R$300"). */
   notes: string
+  /** Atividades da etapa. Quando não vazio, o status da etapa é derivado automaticamente
+   *  do checklist: nenhuma marcada = pendente, algumas = em andamento, todas = concluída. */
+  checklist: ChecklistItem[]
 }
 
 export type ValueType =
@@ -152,6 +162,20 @@ export const DEFAULT_STAGE_NAMES = [
   'Venda',
   'GCAP (imposto de renda)',
 ]
+
+/** Atividades sugeridas para cada etapa padrão, usadas como checklist inicial de cada imóvel. */
+export const DEFAULT_STAGE_CHECKLISTS: Record<string, string[]> = {
+  'Pagamento do arremate': ['Pagar sinal/comissão do leiloeiro', 'Pagar o saldo do arremate', 'Confirmar quitação junto à instituição'],
+  'IPTU / ITBI': ['Levantar débitos de IPTU anteriores', 'Calcular e pagar o ITBI', 'Guardar guias e comprovantes'],
+  'CHB / Escritura': ['Solicitar a Carta de Habilitação (CHB)', 'Agendar e assinar a escritura', 'Reconhecer firma quando exigido'],
+  Registro: ['Protocolar a escritura no cartório de registro de imóveis', 'Pagar emolumentos e taxas de registro', 'Retirar a matrícula atualizada'],
+  Desocupação: ['Verificar se o imóvel está ocupado', 'Notificar o ocupante/ex-proprietário', 'Acompanhar ação de imissão na posse (se necessário)', 'Confirmar a desocupação'],
+  Reforma: ['Orçar a reforma', 'Contratar equipe e materiais', 'Executar a reforma', 'Vistoria final da obra'],
+  Vistoria: ['Agendar a vistoria', 'Realizar a vistoria', 'Registrar fotos e laudo'],
+  'Comprador aprovado': ['Anunciar o imóvel para venda', 'Receber e avaliar propostas', 'Aprovar comprador (cadastro/financiamento)'],
+  Venda: ['Assinar contrato/escritura de venda', 'Registrar a transferência', 'Receber o pagamento e repassar aos cotistas'],
+  'GCAP (imposto de renda)': ['Calcular o ganho de capital', 'Emitir e pagar o DARF do GCAP', 'Guardar comprovante para a declaração de IR'],
+}
 
 /** Pessoa que participa da compra de um ou mais imóveis. */
 export interface Cotista {

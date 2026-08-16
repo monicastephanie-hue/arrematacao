@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Attachment, Cotista, KanbanStatus, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
-import { DEFAULT_STAGE_NAMES } from '@/types'
+import type { Attachment, ChecklistItem, Cotista, KanbanStatus, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
+import { DEFAULT_STAGE_CHECKLISTS, DEFAULT_STAGE_NAMES } from '@/types'
 import { DEFAULT_NOTIFICATION_TEMPLATE } from '@/lib/notification-template'
 
 function makeId(): string {
@@ -19,7 +19,25 @@ export function createDefaultStages(): Stage[] {
     status: 'pendente' as StageStatus,
     date: null,
     notes: '',
+    checklist: (DEFAULT_STAGE_CHECKLISTS[name] ?? []).map((text) => ({ id: makeId(), text, done: false })),
   }))
+}
+
+/** Deriva o status da etapa a partir do checklist: sem itens = não deriva (mantém manual),
+ *  nenhum marcado = pendente, alguns = em andamento, todos = concluída. */
+function deriveStatusFromChecklist(checklist: ChecklistItem[]): StageStatus | null {
+  if (checklist.length === 0) return null
+  const doneCount = checklist.filter((i) => i.done).length
+  if (doneCount === 0) return 'pendente'
+  if (doneCount === checklist.length) return 'concluida'
+  return 'em_andamento'
+}
+
+function applyChecklist(stage: Stage, checklist: ChecklistItem[]): Stage {
+  const derived = deriveStatusFromChecklist(checklist)
+  const status = derived ?? stage.status
+  const date = status === 'concluida' && !stage.date ? new Date().toISOString().slice(0, 10) : stage.date
+  return { ...stage, checklist, status, date }
 }
 
 export type NewPropertyInput = Omit<
@@ -41,6 +59,12 @@ interface StoreState {
   updateStage: (propertyId: string, stageId: string, patch: Partial<Omit<Stage, 'id'>>) => void
   deleteStage: (propertyId: string, stageId: string) => void
   reorderStages: (propertyId: string, orderedIds: string[]) => void
+
+  /** Checklist de atividades de uma etapa — ao marcar/desmarcar, o status da etapa
+   *  (Andamento das etapas) é recalculado automaticamente a partir do checklist. */
+  addChecklistItem: (propertyId: string, stageId: string, text: string) => void
+  toggleChecklistItem: (propertyId: string, stageId: string, itemId: string) => void
+  deleteChecklistItem: (propertyId: string, stageId: string, itemId: string) => void
   /** Move um imóvel para outra coluna do quadro de Gerenciamento (Kanban) — controle
    *  independente das etapas, usado só para o drag-and-drop. */
   setPropertyKanbanStatus: (propertyId: string, kanbanStatus: KanbanStatus) => void
@@ -109,9 +133,61 @@ export const useStore = create<StoreState>()(
               ? {
                   ...p,
                   updatedAt: nowISO(),
-                  stages: [...p.stages, { id: makeId(), name, status: 'pendente', date: null, notes: '' }],
+                  stages: [...p.stages, { id: makeId(), name, status: 'pendente', date: null, notes: '', checklist: [] }],
                 }
               : p,
+          ),
+        }))
+      },
+
+      addChecklistItem: (propertyId, stageId, text) => {
+        const trimmed = text.trim()
+        if (!trimmed) return
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id !== propertyId
+              ? p
+              : {
+                  ...p,
+                  updatedAt: nowISO(),
+                  stages: p.stages.map((s) =>
+                    s.id !== stageId ? s : applyChecklist(s, [...s.checklist, { id: makeId(), text: trimmed, done: false }]),
+                  ),
+                }
+          ),
+        }))
+      },
+
+      toggleChecklistItem: (propertyId, stageId, itemId) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id !== propertyId
+              ? p
+              : {
+                  ...p,
+                  updatedAt: nowISO(),
+                  stages: p.stages.map((s) =>
+                    s.id !== stageId
+                      ? s
+                      : applyChecklist(s, s.checklist.map((i) => (i.id === itemId ? { ...i, done: !i.done } : i))),
+                  ),
+                }
+          ),
+        }))
+      },
+
+      deleteChecklistItem: (propertyId, stageId, itemId) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id !== propertyId
+              ? p
+              : {
+                  ...p,
+                  updatedAt: nowISO(),
+                  stages: p.stages.map((s) =>
+                    s.id !== stageId ? s : applyChecklist(s, s.checklist.filter((i) => i.id !== itemId)),
+                  ),
+                }
           ),
         }))
       },
@@ -261,7 +337,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 6,
+      version: 7,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -282,6 +358,26 @@ export const useStore = create<StoreState>()(
             kanbanStatus: typeof p.kanbanStatus === 'string' ? p.kanbanStatus : 'arrematado',
             proposalAttachment: p.proposalAttachment ?? null,
             billAttachment: p.billAttachment ?? null,
+            // Checklist de atividades por etapa, introduzido na versão 7. Etapas padrão que
+            // ainda não tinham checklist ganham as atividades sugeridas; etapas
+            // personalizadas ganham um checklist vazio (editável pelo usuário). Etapas que
+            // já estavam marcadas como concluídas ganham o checklist já todo marcado, para
+            // não "desconcluir" nada que a pessoa já tinha dado como feito.
+            stages: Array.isArray(p.stages)
+              ? (p.stages as Array<Record<string, unknown>>).map((s) => {
+                  const alreadyDone = s.status === 'concluida'
+                  return {
+                    ...s,
+                    checklist: Array.isArray(s.checklist)
+                      ? s.checklist
+                      : (DEFAULT_STAGE_CHECKLISTS[s.name as string] ?? []).map((text) => ({
+                          id: makeId(),
+                          text,
+                          done: alreadyDone,
+                        })),
+                  }
+                })
+              : [],
           })),
           cotistas: (state.cotistas ?? []).map((c) => ({
             ...c,
