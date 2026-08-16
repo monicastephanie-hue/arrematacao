@@ -111,6 +111,7 @@ export default function PropertyDetail() {
           <InfoItem label="Nº do processo/edital" value={property.processNumber || '—'} />
           <InfoItem label="Data do leilão/arremate" value={formatDate(property.auctionDate)} />
           <InfoItem label="Valor de avaliação" value={formatCurrency(property.evaluationValue)} />
+          <InfoItem label="Valor de arrematação" value={formatCurrency(property.auctionValue)} />
           <div>
             <p className="flex items-center gap-1 text-xs text-slate-400">
               <Users className="h-3.5 w-3.5" />

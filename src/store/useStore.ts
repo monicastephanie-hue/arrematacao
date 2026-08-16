@@ -337,7 +337,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 7,
+      version: 8,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -358,6 +358,8 @@ export const useStore = create<StoreState>()(
             kanbanStatus: typeof p.kanbanStatus === 'string' ? p.kanbanStatus : 'arrematado',
             proposalAttachment: p.proposalAttachment ?? null,
             billAttachment: p.billAttachment ?? null,
+            // Valor de arrematação, introduzido na versão 8.
+            auctionValue: typeof p.auctionValue === 'number' ? p.auctionValue : null,
             // Checklist de atividades por etapa, introduzido na versão 7. Etapas padrão que
             // ainda não tinham checklist ganham as atividades sugeridas; etapas
             // personalizadas ganham um checklist vazio (editável pelo usuário). Etapas que

@@ -22,6 +22,7 @@ const emptyForm: NewPropertyInput = {
   processNumber: '',
   auctionDate: null,
   evaluationValue: null,
+  auctionValue: null,
   marketValue: null,
   financed: false,
   cotistaIds: [],
@@ -53,6 +54,7 @@ export default function PropertyForm() {
           processNumber: existing.processNumber,
           auctionDate: existing.auctionDate,
           evaluationValue: existing.evaluationValue,
+          auctionValue: existing.auctionValue,
           marketValue: existing.marketValue,
           financed: existing.financed,
           cotistaIds: existing.cotistaIds,
@@ -175,7 +177,7 @@ export default function PropertyForm() {
         </Card>
 
         <Card className="flex flex-col gap-4 p-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FieldGroup>
               <Label htmlFor="evaluationValue" hint="opcional">
                 Valor de avaliação (edital)
@@ -187,6 +189,19 @@ export default function PropertyForm() {
                 step="0.01"
                 value={form.evaluationValue ?? ''}
                 onChange={(e) => set('evaluationValue', e.target.value === '' ? null : Number(e.target.value))}
+              />
+            </FieldGroup>
+            <FieldGroup>
+              <Label htmlFor="auctionValue" hint="opcional">
+                Valor de arrematação
+              </Label>
+              <Input
+                id="auctionValue"
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.auctionValue ?? ''}
+                onChange={(e) => set('auctionValue', e.target.value === '' ? null : Number(e.target.value))}
               />
             </FieldGroup>
             <FieldGroup>

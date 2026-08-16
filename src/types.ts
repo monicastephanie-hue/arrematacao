@@ -126,6 +126,8 @@ export interface Property {
   auctionDate: string | null
   /** Valor de avaliação do edital. */
   evaluationValue: number | null
+  /** Valor pelo qual o imóvel foi efetivamente arrematado no leilão. */
+  auctionValue: number | null
   /** Valor de mercado estimado, usado para projetar o resultado. */
   marketValue: number | null
   /** Imóvel comprado com financiamento (ex.: Caixa) em vez de à vista. */
