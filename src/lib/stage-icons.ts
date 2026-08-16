@@ -15,7 +15,7 @@ import {
 
 /** Associa palavras-chave do nome da etapa a um pictograma. A primeira que combinar vence. */
 const STAGE_ICON_RULES: { match: RegExp; icon: LucideIcon }[] = [
-  { match: /pagamento|arremate|lance|boleto/i, icon: Banknote },
+  { match: /pagamento|arremat|lance|boleto/i, icon: Banknote },
   { match: /iptu|itbi/i, icon: Receipt },
   { match: /escritura|chb/i, icon: FileSignature },
   { match: /registro/i, icon: Stamp },

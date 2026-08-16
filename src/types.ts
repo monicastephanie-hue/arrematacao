@@ -153,7 +153,7 @@ export interface Property {
 
 /** Fluxo padrão observado no controle atual em planilha: do pagamento do arremate até a venda. */
 export const DEFAULT_STAGE_NAMES = [
-  'Pagamento do arremate',
+  'Arrematação',
   'IPTU / ITBI',
   'CHB / Escritura',
   'Registro',
@@ -167,7 +167,7 @@ export const DEFAULT_STAGE_NAMES = [
 
 /** Atividades sugeridas para cada etapa padrão, usadas como checklist inicial de cada imóvel. */
 export const DEFAULT_STAGE_CHECKLISTS: Record<string, string[]> = {
-  'Pagamento do arremate': ['Pagar sinal/comissão do leiloeiro', 'Pagar o saldo do arremate', 'Confirmar quitação junto à instituição'],
+  Arrematação: ['Efetuar lance para arrematação', 'Efetuar o pagamento do boleto', 'Alterar proposta para inclusão de todos os cotistas pagantes'],
   'IPTU / ITBI': ['Levantar débitos de IPTU anteriores', 'Calcular e pagar o ITBI', 'Guardar guias e comprovantes'],
   'CHB / Escritura': ['Solicitar a Carta de Habilitação (CHB)', 'Agendar e assinar a escritura', 'Reconhecer firma quando exigido'],
   Registro: ['Protocolar a escritura no cartório de registro de imóveis', 'Pagar emolumentos e taxas de registro', 'Retirar a matrícula atualizada'],

@@ -337,7 +337,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 8,
+      version: 9,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -365,18 +365,25 @@ export const useStore = create<StoreState>()(
             // personalizadas ganham um checklist vazio (editável pelo usuário). Etapas que
             // já estavam marcadas como concluídas ganham o checklist já todo marcado, para
             // não "desconcluir" nada que a pessoa já tinha dado como feito.
+            // Na versão 9, a etapa "Pagamento do arremate" foi renomeada para "Arrematação"
+            // e ganhou novas atividades — quem já tinha essa etapa recebe o novo nome e o
+            // checklist atualizado.
             stages: Array.isArray(p.stages)
               ? (p.stages as Array<Record<string, unknown>>).map((s) => {
+                  const renamed = s.name === 'Pagamento do arremate'
+                  const name = renamed ? 'Arrematação' : (s.name as string)
                   const alreadyDone = s.status === 'concluida'
+                  const needsFreshChecklist = renamed || !Array.isArray(s.checklist)
                   return {
                     ...s,
-                    checklist: Array.isArray(s.checklist)
-                      ? s.checklist
-                      : (DEFAULT_STAGE_CHECKLISTS[s.name as string] ?? []).map((text) => ({
+                    name,
+                    checklist: needsFreshChecklist
+                      ? (DEFAULT_STAGE_CHECKLISTS[name] ?? []).map((text) => ({
                           id: makeId(),
                           text,
                           done: alreadyDone,
-                        })),
+                        }))
+                      : s.checklist,
                   }
                 })
               : [],
