@@ -154,9 +154,13 @@ export interface Property {
 /** Fluxo padrão observado no controle atual em planilha: do pagamento do arremate até a venda. */
 export const DEFAULT_STAGE_NAMES = [
   'Arrematação',
+  'Contrato',
   'IPTU / ITBI',
   'CHB / Escritura',
+  'Leilões Negativos',
   'Registro',
+  'Troca de Titularidade',
+  'Condomínio',
   'Desocupação',
   'Reforma',
   'Vistoria',
@@ -168,9 +172,13 @@ export const DEFAULT_STAGE_NAMES = [
 /** Atividades sugeridas para cada etapa padrão, usadas como checklist inicial de cada imóvel. */
 export const DEFAULT_STAGE_CHECKLISTS: Record<string, string[]> = {
   Arrematação: ['Efetuar lance para arrematação', 'Efetuar o pagamento do boleto', 'Alterar proposta para inclusão de todos os cotistas pagantes'],
+  Contrato: ['Assinar o contrato de compra e venda', 'Reconhecer firma quando exigido', 'Arquivar cópia assinada por todas as partes'],
   'IPTU / ITBI': ['Levantar débitos de IPTU anteriores', 'Calcular e pagar o ITBI', 'Guardar guias e comprovantes'],
   'CHB / Escritura': ['Solicitar a Carta de Habilitação (CHB)', 'Agendar e assinar a escritura', 'Reconhecer firma quando exigido'],
+  'Leilões Negativos': ['Solicitar certidão de ações/leilões', 'Verificar pendências judiciais sobre o imóvel', 'Anexar a certidão negativa ao processo'],
   Registro: ['Protocolar a escritura no cartório de registro de imóveis', 'Pagar emolumentos e taxas de registro', 'Retirar a matrícula atualizada'],
+  'Troca de Titularidade': ['Atualizar o cadastro na prefeitura (IPTU)', 'Transferir as contas de água e luz', 'Atualizar o cadastro no condomínio, se houver'],
+  Condomínio: ['Levantar débitos condominiais anteriores', 'Negociar e pagar débitos pendentes', 'Atualizar o cadastro do novo proprietário'],
   Desocupação: ['Verificar se o imóvel está ocupado', 'Notificar o ocupante/ex-proprietário', 'Acompanhar ação de imissão na posse (se necessário)', 'Confirmar a desocupação'],
   Reforma: ['Orçar a reforma', 'Contratar equipe e materiais', 'Executar a reforma', 'Vistoria final da obra'],
   Vistoria: ['Agendar a vistoria', 'Realizar a vistoria', 'Registrar fotos e laudo'],
