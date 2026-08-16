@@ -40,10 +40,11 @@ function applyChecklist(stage: Stage, checklist: ChecklistItem[]): Stage {
   return { ...stage, checklist, status, date }
 }
 
-/** Novas etapas padrão introduzidas na versão 10 (Contrato, Leilões Negativos, Troca de
- *  Titularidade e Condomínio). Quem já tinha um imóvel cadastrado ganha essas etapas
- *  automaticamente, inseridas na posição do fluxo padrão. */
-const NEW_DEFAULT_STAGE_NAMES_V10 = ['Contrato', 'Leilões Negativos', 'Troca de Titularidade', 'Condomínio']
+/** Novas etapas padrão introduzidas na versão 10 (Contrato de Habitação, Leilões
+ *  Negativos, Troca de Titularidade e Condomínio — "Contrato" foi renomeado na versão
+ *  11). Quem já tinha um imóvel cadastrado ganha essas etapas automaticamente, inseridas
+ *  na posição do fluxo padrão. */
+const NEW_DEFAULT_STAGE_NAMES_V10 = ['Contrato de Habitação', 'Leilões Negativos', 'Troca de Titularidade', 'Condomínio']
 
 function insertMissingDefaultStages(stages: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
   const missing = NEW_DEFAULT_STAGE_NAMES_V10.filter((name) => !stages.some((s) => s.name === name))
@@ -374,7 +375,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 10,
+      version: 11,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -406,26 +407,34 @@ export const useStore = create<StoreState>()(
             // e ganhou novas atividades — quem já tinha essa etapa recebe o novo nome e o
             // checklist atualizado. Na versão 10, quatro novas etapas padrão (Contrato,
             // Leilões Negativos, Troca de Titularidade e Condomínio) são inseridas em quem
-            // ainda não as tinha.
+            // ainda não as tinha. Na versão 11, "Contrato" vira "Contrato de Habitação" (com
+            // "Atualização de matrícula" como primeira atividade) e a etapa "CHB / Escritura"
+            // é removida, absorvida pela etapa de contrato.
             stages: insertMissingDefaultStages(
               Array.isArray(p.stages)
-                ? (p.stages as Array<Record<string, unknown>>).map((s) => {
-                    const renamed = s.name === 'Pagamento do arremate'
-                    const name = renamed ? 'Arrematação' : (s.name as string)
-                    const alreadyDone = s.status === 'concluida'
-                    const needsFreshChecklist = renamed || !Array.isArray(s.checklist)
-                    return {
-                      ...s,
-                      name,
-                      checklist: needsFreshChecklist
-                        ? (DEFAULT_STAGE_CHECKLISTS[name] ?? []).map((text) => ({
-                            id: makeId(),
-                            text,
-                            done: alreadyDone,
-                          }))
-                        : s.checklist,
-                    }
-                  })
+                ? (p.stages as Array<Record<string, unknown>>)
+                    .filter((s) => s.name !== 'CHB / Escritura')
+                    .map((s) => {
+                      const renameMap: Record<string, string> = {
+                        'Pagamento do arremate': 'Arrematação',
+                        Contrato: 'Contrato de Habitação',
+                      }
+                      const renamed = Object.hasOwn(renameMap, s.name as string)
+                      const name = renamed ? renameMap[s.name as string] : (s.name as string)
+                      const alreadyDone = s.status === 'concluida'
+                      const needsFreshChecklist = renamed || !Array.isArray(s.checklist)
+                      return {
+                        ...s,
+                        name,
+                        checklist: needsFreshChecklist
+                          ? (DEFAULT_STAGE_CHECKLISTS[name] ?? []).map((text) => ({
+                              id: makeId(),
+                              text,
+                              done: alreadyDone,
+                            }))
+                          : s.checklist,
+                      }
+                    })
                 : [],
             ),
           })),
