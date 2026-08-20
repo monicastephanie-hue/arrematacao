@@ -1,11 +1,38 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
 import type { Attachment, ChecklistItem, Cotista, KanbanStatus, Property, Simulation, Stage, StageStatus, ValueEntry } from '@/types'
 import { DEFAULT_STAGE_CHECKLISTS, DEFAULT_STAGE_NAMES } from '@/types'
 import { DEFAULT_NOTIFICATION_TEMPLATE } from '@/lib/notification-template'
+import { useStorageStatus } from '@/store/useStorageStatus'
 
 function makeId(): string {
   return (crypto as { randomUUID?: () => string }).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+// O navegador tem um limite de espaço para localStorage (geralmente uns 5-10MB). Como o
+// app ainda guarda tudo (inclusive imagens de anexos) só localmente, é possível estourar
+// esse limite — e por padrão isso falha em silêncio, dando a impressão de que ações como
+// excluir/salvar simplesmente "não funcionam". Este storage substituto captura esse erro
+// e avisa a pessoa em vez de deixar a escrita sumir sem explicação. A notificação vai para
+// uma store separada (useStorageStatus, sem persist) — se fosse para esta própria store,
+// cada notificação disparava uma nova gravação, que disparava uma nova notificação, num
+// loop infinito.
+const resilientLocalStorage: StateStorage = {
+  getItem: (name) => localStorage.getItem(name),
+  setItem: (name, value) => {
+    try {
+      localStorage.setItem(name, value)
+      useStorageStatus.getState().setStorageError(null)
+    } catch (err) {
+      console.error('Falha ao salvar no localStorage:', err)
+      useStorageStatus
+        .getState()
+        .setStorageError(
+          'Não foi possível salvar a última alteração — o armazenamento do navegador está cheio. Apague alguns anexos (principalmente imagens) para liberar espaço e tente de novo.',
+        )
+    }
+  },
+  removeItem: (name) => localStorage.removeItem(name),
 }
 
 function nowISO(): string {
@@ -393,6 +420,7 @@ export const useStore = create<StoreState>()(
     {
       name: 'arrematacao-store',
       version: 12,
+      storage: createJSONStorage(() => resilientLocalStorage),
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>

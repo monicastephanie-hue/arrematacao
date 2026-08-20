@@ -15,3 +15,11 @@ export function readFileAsDataUrl(file: File): Promise<string> {
     reader.readAsDataURL(file)
   })
 }
+
+/** Tamanho em bytes do conteúdo decodificado de um data URL base64 — usado depois de
+ *  recomprimir uma imagem, quando o tamanho real já não é mais o do arquivo original. */
+export function dataUrlByteSize(dataUrl: string): number {
+  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1)
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
+  return Math.max(0, Math.floor((base64.length * 3) / 4) - padding)
+}

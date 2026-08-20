@@ -5,27 +5,47 @@ import { useStore } from '@/store/useStore'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/field'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { ImageLightbox } from '@/components/ui/image-lightbox'
 import { getStageIcon } from '@/lib/stage-icons'
-import { MAX_ATTACHMENT_SIZE, formatFileSize, readFileAsDataUrl } from '@/lib/file'
+import { MAX_ATTACHMENT_SIZE, dataUrlByteSize, formatFileSize, readFileAsDataUrl } from '@/lib/file'
+import { readImageAsCompressedDataUrl } from '@/lib/image'
 import { formatDate } from '@/lib/format'
+
+function isImageAttachment(attachment: Attachment): boolean {
+  return attachment.mimeType.startsWith('image/')
+}
 
 function AttachmentRow({
   attachment,
   stages,
   onClassify,
   onDelete,
+  onPreview,
 }: {
   attachment: Attachment
   stages: Stage[]
   onClassify: (stageId: string | 'geral') => void
   onDelete: () => void
+  onPreview: () => void
 }) {
+  const isImage = isImageAttachment(attachment)
   return (
     <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-          <FileText className="h-4 w-4" />
-        </span>
+        {isImage ? (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="shrink-0 overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-slate-700"
+            aria-label={`Ver ${attachment.name} em tamanho maior`}
+          >
+            <img src={attachment.dataUrl} alt={attachment.name} className="h-9 w-9 object-cover" />
+          </button>
+        ) : (
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            <FileText className="h-4 w-4" />
+          </span>
+        )}
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200" title={attachment.name}>
             {attachment.name}
@@ -89,6 +109,7 @@ export function AttachmentsEditor({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<Attachment | null>(null)
+  const [preview, setPreview] = useState<Attachment | null>(null)
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
@@ -100,12 +121,15 @@ export function AttachmentsEditor({
       }
       setLoading(true)
       try {
-        const dataUrl = await readFileAsDataUrl(file)
+        // Imagens são recomprimidas antes de salvar — reduz bastante o espaço ocupado no
+        // navegador, o que importa porque hoje os anexos ficam só no localStorage.
+        const isImage = file.type.startsWith('image/')
+        const dataUrl = isImage ? await readImageAsCompressedDataUrl(file) : await readFileAsDataUrl(file)
         addAttachment(propertyId, {
           name: file.name,
           fileName: file.name,
-          mimeType: file.type || 'application/octet-stream',
-          size: file.size,
+          mimeType: isImage ? 'image/jpeg' : file.type || 'application/octet-stream',
+          size: isImage ? dataUrlByteSize(dataUrl) : file.size,
           dataUrl,
           uploadedAt: new Date().toISOString(),
         })
@@ -153,6 +177,7 @@ export function AttachmentsEditor({
                 stages={stages}
                 onClassify={(stageId) => classifyAttachment(propertyId, att.id, stageId)}
                 onDelete={() => setPendingDelete(att)}
+                onPreview={() => setPreview(att)}
               />
             ))}
           </div>
@@ -179,6 +204,7 @@ export function AttachmentsEditor({
                       stages={stages}
                       onClassify={(stageId) => classifyAttachment(propertyId, att.id, stageId)}
                       onDelete={() => setPendingDelete(att)}
+                      onPreview={() => setPreview(att)}
                     />
                   ))}
                 </div>
@@ -200,6 +226,7 @@ export function AttachmentsEditor({
                         stages={stages}
                         onClassify={(stageId) => classifyAttachment(propertyId, att.id, stageId)}
                         onDelete={() => setPendingDelete(att)}
+                        onPreview={() => setPreview(att)}
                       />
                     ))}
                   </div>
@@ -220,6 +247,15 @@ export function AttachmentsEditor({
           setPendingDelete(null)
         }}
       />
+
+      {preview && (
+        <ImageLightbox
+          src={preview.dataUrl}
+          alt={preview.name}
+          downloadName={preview.fileName}
+          onClose={() => setPreview(null)}
+        />
+      )}
     </div>
   )
 }
