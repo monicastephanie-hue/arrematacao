@@ -20,3 +20,13 @@ export function formatDateLong(value: string | null | undefined): string {
 export function todayISO(): string {
   return new Date().toISOString().slice(0, 10)
 }
+
+/** "2026-08-18T14:32:00.000Z" → "18/08/2026 às 14:32". */
+export function formatDateTime(value: string | null | undefined): string {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '—'
+  const date = d.toLocaleDateString('pt-BR')
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${date} às ${time}`
+}

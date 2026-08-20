@@ -107,7 +107,7 @@ function insertMissingDefaultStages(stages: Array<Record<string, unknown>>): Arr
 
 export type NewPropertyInput = Omit<
   Property,
-  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values' | 'attachments' | 'kanbanStatus'
+  'id' | 'createdAt' | 'updatedAt' | 'stages' | 'values' | 'attachments' | 'kanbanStatus' | 'lastCollectionAt'
 >
 
 export type NewCotistaInput = Omit<Cotista, 'id' | 'createdAt'>
@@ -119,6 +119,9 @@ interface StoreState {
   addProperty: (input: NewPropertyInput) => string
   updateProperty: (id: string, patch: Partial<NewPropertyInput>) => void
   deleteProperty: (id: string) => void
+  /** Marca "agora" como a última vez que anexos/despesas do grupo do WhatsApp deste
+   *  imóvel foram trazidos para o app. */
+  markCollected: (propertyId: string) => void
 
   addStage: (propertyId: string, name: string) => void
   updateStage: (propertyId: string, stageId: string, patch: Partial<Omit<Stage, 'id'>>) => void
@@ -177,6 +180,7 @@ export const useStore = create<StoreState>()(
           values: [],
           attachments: [],
           kanbanStatus: 'arrematado',
+          lastCollectionAt: null,
         }
         set((state) => ({ properties: [property, ...state.properties] }))
         return id
@@ -186,6 +190,14 @@ export const useStore = create<StoreState>()(
         set((state) => ({
           properties: state.properties.map((p) =>
             p.id === id ? { ...p, ...patch, updatedAt: nowISO() } : p,
+          ),
+        }))
+      },
+
+      markCollected: (propertyId) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id === propertyId ? { ...p, lastCollectionAt: nowISO(), updatedAt: nowISO() } : p,
           ),
         }))
       },
@@ -419,7 +431,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 12,
+      version: 13,
       storage: createJSONStorage(() => resilientLocalStorage),
       migrate: (persisted, version) => {
         const state = persisted as {
@@ -451,6 +463,9 @@ export const useStore = create<StoreState>()(
             billAttachment: p.billAttachment ?? null,
             // Valor de arrematação, introduzido na versão 8.
             auctionValue: typeof p.auctionValue === 'number' ? p.auctionValue : null,
+            // Grupo do WhatsApp e última coleta, introduzidos na versão 13.
+            whatsappGroup: typeof p.whatsappGroup === 'string' ? p.whatsappGroup : '',
+            lastCollectionAt: typeof p.lastCollectionAt === 'string' ? p.lastCollectionAt : null,
             // Checklist de atividades por etapa, introduzido na versão 7. Etapas padrão que
             // ainda não tinham checklist ganham as atividades sugeridas; etapas
             // personalizadas ganham um checklist vazio (editável pelo usuário). Etapas que

@@ -27,6 +27,7 @@ const emptyForm: NewPropertyInput = {
   financed: false,
   cotistaIds: [],
   photoUrl: null,
+  whatsappGroup: '',
   proposalAttachment: null,
   billAttachment: null,
   status: 'em_andamento',
@@ -59,6 +60,7 @@ export default function PropertyForm() {
           financed: existing.financed,
           cotistaIds: existing.cotistaIds,
           photoUrl: existing.photoUrl,
+          whatsappGroup: existing.whatsappGroup,
           proposalAttachment: existing.proposalAttachment,
           billAttachment: existing.billAttachment,
           status: existing.status,
@@ -164,6 +166,18 @@ export default function PropertyForm() {
               Link do edital/anúncio
             </Label>
             <Input id="auctionUrl" type="url" value={form.auctionUrl} onChange={(e) => set('auctionUrl', e.target.value)} placeholder="https://" />
+          </FieldGroup>
+
+          <FieldGroup>
+            <Label htmlFor="whatsappGroup" hint="opcional">
+              Grupo do WhatsApp
+            </Label>
+            <Input
+              id="whatsappGroup"
+              value={form.whatsappGroup}
+              onChange={(e) => set('whatsappGroup', e.target.value)}
+              placeholder="Ex.: Paulo 15 - Assessoria Marcelino"
+            />
           </FieldGroup>
 
           <div className="grid grid-cols-2 gap-4">

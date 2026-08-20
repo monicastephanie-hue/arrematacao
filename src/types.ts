@@ -140,6 +140,11 @@ export interface Property {
   cotistaIds: string[]
   /** Foto de capa do imóvel, como data URL (já redimensionada/comprimida no upload). */
   photoUrl: string | null
+  /** Nome do grupo do WhatsApp usado para acompanhar despesas/anexos deste imóvel. */
+  whatsappGroup: string
+  /** Quando foi a última vez que anexos/despesas do WhatsApp foram trazidos para o app —
+   *  usado para montar a instrução de "buscar desde a última coleta". */
+  lastCollectionAt: string | null
   /** Proposta de arrematação enviada/aceita no leilão. */
   proposalAttachment: Attachment | null
   /** Boleto de pagamento do arremate. */

@@ -12,6 +12,7 @@ import { StagePinTimeline } from '@/components/stage-pin-timeline'
 import { StageChecklist } from '@/components/stage-checklist'
 import { ValuesEditor } from '@/components/values-editor'
 import { AttachmentsEditor } from '@/components/attachments-editor'
+import { WhatsAppCollectionCard } from '@/components/whatsapp-collection-card'
 import { SingleAttachmentUpload } from '@/components/single-attachment-upload'
 import { CumulativeInvestmentChart } from '@/components/charts/cumulative-investment-chart'
 import { Card } from '@/components/ui/card'
@@ -213,6 +214,8 @@ export default function PropertyDetail() {
           <CumulativeInvestmentChart data={series} />
         </Card>
       )}
+
+      <WhatsAppCollectionCard property={property} />
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Valores lançados</h2>
