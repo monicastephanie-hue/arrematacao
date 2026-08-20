@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { ClipboardPaste, Pencil, Plus, Trash2 } from 'lucide-react'
 import type { ValueEntry } from '@/types'
 import { VALUE_TYPE_META } from '@/types'
 import { useStore } from '@/store/useStore'
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { ValueEntryModal } from '@/components/value-entry-modal'
+import { BulkValueImportModal } from '@/components/bulk-value-import-modal'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
@@ -16,6 +17,7 @@ export function ValuesEditor({ propertyId, values }: { propertyId: string; value
   const deleteValueEntry = useStore((s) => s.deleteValueEntry)
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [bulkOpen, setBulkOpen] = useState(false)
   const [editing, setEditing] = useState<ValueEntry | undefined>(undefined)
   const [pendingDelete, setPendingDelete] = useState<ValueEntry | null>(null)
 
@@ -40,22 +42,37 @@ export function ValuesEditor({ propertyId, values }: { propertyId: string; value
     setModalOpen(false)
   }
 
+  function handleBulkImport(entries: Omit<ValueEntry, 'id'>[]) {
+    for (const entry of entries) addValueEntry(propertyId, entry)
+  }
+
   if (sorted.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-slate-200 py-8 text-center dark:border-slate-800">
         <p className="text-sm text-slate-500 dark:text-slate-400">Nenhum valor lançado ainda.</p>
-        <Button size="sm" onClick={openAdd}>
-          <Plus className="h-4 w-4" />
-          Adicionar valor
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="h-4 w-4" />
+            Adicionar valor
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => setBulkOpen(true)}>
+            <ClipboardPaste className="h-4 w-4" />
+            Colar mensagens
+          </Button>
+        </div>
         <ValueEntryModal open={modalOpen} onClose={() => setModalOpen(false)} onSave={handleSave} initial={editing} />
+        <BulkValueImportModal open={bulkOpen} onClose={() => setBulkOpen(false)} onImport={handleBulkImport} />
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button size="sm" variant="secondary" onClick={() => setBulkOpen(true)}>
+          <ClipboardPaste className="h-4 w-4" />
+          Colar mensagens
+        </Button>
         <Button size="sm" onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Adicionar valor
@@ -107,6 +124,7 @@ export function ValuesEditor({ propertyId, values }: { propertyId: string; value
       </Card>
 
       <ValueEntryModal open={modalOpen} onClose={() => setModalOpen(false)} onSave={handleSave} initial={editing} />
+      <BulkValueImportModal open={bulkOpen} onClose={() => setBulkOpen(false)} onImport={handleBulkImport} />
 
       <ConfirmDialog
         open={pendingDelete !== null}
