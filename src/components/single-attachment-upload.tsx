@@ -38,6 +38,8 @@ export function SingleAttachmentUpload({
         size: file.size,
         dataUrl,
         uploadedAt: new Date().toISOString(),
+        // Campo próprio (Proposta/Boleto), fora da lista de anexos classificáveis.
+        stageId: 'geral',
       })
     } catch {
       setError('Não foi possível anexar esse arquivo.')

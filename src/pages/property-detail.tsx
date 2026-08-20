@@ -237,7 +237,7 @@ export default function PropertyDetail() {
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Anexos</h2>
-        <AttachmentsEditor propertyId={property.id} attachments={property.attachments} />
+        <AttachmentsEditor propertyId={property.id} attachments={property.attachments} stages={property.stages} />
       </div>
 
       <ConfirmDialog

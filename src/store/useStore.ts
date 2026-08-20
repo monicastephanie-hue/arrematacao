@@ -111,8 +111,11 @@ interface StoreState {
   updateValueEntry: (propertyId: string, entryId: string, patch: Partial<Omit<ValueEntry, 'id'>>) => void
   deleteValueEntry: (propertyId: string, entryId: string) => void
 
-  addAttachment: (propertyId: string, attachment: Omit<Attachment, 'id'>) => void
+  addAttachment: (propertyId: string, attachment: Omit<Attachment, 'id' | 'stageId'>) => void
   deleteAttachment: (propertyId: string, attachmentId: string) => void
+  /** Classifica um anexo pendente: associa a uma etapa (stageId), a 'geral' (documento do
+   *  imóvel sem etapa específica) ou de volta para null (pendência de classificação). */
+  classifyAttachment: (propertyId: string, attachmentId: string, stageId: string | 'geral' | null) => void
 
   cotistas: Cotista[]
   addCotista: (input: NewCotistaInput) => string
@@ -309,7 +312,7 @@ export const useStore = create<StoreState>()(
         set((state) => ({
           properties: state.properties.map((p) =>
             p.id === propertyId
-              ? { ...p, updatedAt: nowISO(), attachments: [...p.attachments, { ...attachment, id: makeId() }] }
+              ? { ...p, updatedAt: nowISO(), attachments: [...p.attachments, { ...attachment, id: makeId(), stageId: null }] }
               : p,
           ),
         }))
@@ -320,6 +323,20 @@ export const useStore = create<StoreState>()(
           properties: state.properties.map((p) =>
             p.id === propertyId
               ? { ...p, updatedAt: nowISO(), attachments: p.attachments.filter((a) => a.id !== attachmentId) }
+              : p,
+          ),
+        }))
+      },
+
+      classifyAttachment: (propertyId, attachmentId, stageId) => {
+        set((state) => ({
+          properties: state.properties.map((p) =>
+            p.id === propertyId
+              ? {
+                  ...p,
+                  updatedAt: nowISO(),
+                  attachments: p.attachments.map((a) => (a.id === attachmentId ? { ...a, stageId } : a)),
+                }
               : p,
           ),
         }))
@@ -375,7 +392,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'arrematacao-store',
-      version: 11,
+      version: 12,
       migrate: (persisted, version) => {
         const state = persisted as {
           properties?: Array<Record<string, unknown>>
@@ -392,7 +409,15 @@ export const useStore = create<StoreState>()(
           properties: (state.properties ?? []).map((p) => ({
             ...p,
             cotistaIds: Array.isArray(p.cotistaIds) ? p.cotistaIds : [],
-            attachments: Array.isArray(p.attachments) ? p.attachments : [],
+            // Classificação de anexos por etapa, introduzida na versão 12. Anexos que já
+            // existiam antes da classificação existir são considerados documentos gerais
+            // (não entram na Pendência de classificação).
+            attachments: Array.isArray(p.attachments)
+              ? (p.attachments as Array<Record<string, unknown>>).map((a) => ({
+                  ...a,
+                  stageId: a.stageId === undefined ? 'geral' : (a.stageId as string | 'geral' | null),
+                }))
+              : [],
             kanbanStatus: typeof p.kanbanStatus === 'string' ? p.kanbanStatus : 'arrematado',
             proposalAttachment: p.proposalAttachment ?? null,
             billAttachment: p.billAttachment ?? null,

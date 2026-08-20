@@ -112,6 +112,10 @@ export interface Attachment {
   size: number
   dataUrl: string
   uploadedAt: string
+  /** A qual etapa este anexo se refere. null = ainda não classificado (fica em
+   *  "Pendência de classificação"); 'geral' = documento do imóvel sem etapa específica;
+   *  id de uma Stage = anexo classificado naquela etapa. */
+  stageId: string | 'geral' | null
 }
 
 export interface Property {
